@@ -10,7 +10,7 @@ report 50001 "Roll Up Standard Cost FDD107"
         dataitem(Item; Item)
         {
             //DataItemTableView = sorting("No.");
-            RequestFilterFields = "No.", "Costing Method";
+            RequestFilterFields = "No.", "Costing Method", "Exclude from Std. Cost Roll";
 
             trigger OnPostDataItem()
             var
@@ -183,6 +183,7 @@ report 50001 "Roll Up Standard Cost FDD107"
 
         trigger OnOpenPage()
         begin
+            Item.SetRange("Exclude from Std. Cost Roll", false);
             if CalculationDate = 0D then
                 CalculationDate := WorkDate();
         end;
