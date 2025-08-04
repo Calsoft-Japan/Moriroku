@@ -83,7 +83,7 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
                     TempPOHeader.SetRange(Invoice, false);
                     if TempPOHeader.FindFirst() then begin
                         Commit();
-                        if Code(RecPOHeaderLine) then begin
+                        if PostCurPurchRecv(RecPOHeaderLine) then begin
                             TempPOHeader.Invoice := true;
                             TempPOHeader.Modify();
 
@@ -230,29 +230,15 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
     end;
 
 
-    local procedure "Code"(var PurchaseHeader: Record "Purchase Header"): Boolean
-    /*var
-        PurchSetup: Record "Purchases & Payables Setup";
-        PurchPostViaJobQueue: Codeunit "Purchase Post via Job Queue";
-        HideDialog: Boolean;
-        IsHandled: Boolean;
-        DefaultOption: Integer;
-        */
+    local procedure PostCurPurchRecv(var PurchaseHeader: Record "Purchase Header"): Boolean
+    var
+        ReleasePurchDoc: Codeunit "Release Purchase Document";
     begin
-        /*
-                DefaultOption := 1;
-
-                PurchSetup.Get();
-                if PurchSetup."Post with Job Queue" then
-                    PurchPostViaJobQueue.EnqueuePurchDoc(PurchaseHeader)
-                else begin*/
+        ReleasePurchDoc.PerformManualReopen(PurchaseHeader);
         if CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchaseHeader) then begin
             exit(true);
         end;
-
         exit(false);
-        //end;
-
     end;
 
     [TryFunction]
