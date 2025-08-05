@@ -152,6 +152,8 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
             RecPOHeaderLine.Validate("Vendor Shipment No.", RecMTNA_IF_PurchaseReceiving."Vendor Shipment No.");
             RecPOHeaderLine.Validate("Document Date", RecMTNA_IF_PurchaseReceiving."Posting Date");
             RecPOHeaderLine.Receive := true;
+            RecPOHeaderLine.Ship := false;
+            RecPOHeaderLine.Invoice := false;
             RecPOHeaderLine.Modify();
             if RecPOHeaderLine.Status = RecPOHeaderLine.Status::Released then
                 ReleasePurchDoc.PerformManualReopen(RecPOHeaderLine);
@@ -168,7 +170,10 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
                 RecPOLines.Reset();
                 RecPOLines.SetRange("Document Type", RecPOHeaderLine."Document Type"::Order);
                 RecPOLines.SetRange("Document No.", RecMTNA_IF_PurchaseReceiving."Order No.");
-                RecPOLines.ModifyAll("Qty. to Receive", 0);
+                RecPOLines.ModifyAll("Qty. to Receive", 0, true);
+                RecPOLines.ModifyAll("Qty. to Receive (Base)", 0, true);
+                RecPOLines.ModifyAll("Qty. to Invoice", 0, true);
+                RecPOLines.ModifyAll("Qty. to Invoice (Base)", 0, true);
             end;
         end;
 
