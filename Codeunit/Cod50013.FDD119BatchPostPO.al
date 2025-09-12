@@ -23,15 +23,21 @@ codeunit 50013 FDD119BatchPostPO
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", OnConfirmCurrencyFactorUpdateOnBeforeConfirm, '', false, false)]
     local procedure "Purchase Header_OnConfirmCurrencyFactorUpdateOnBeforeConfirm"(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var Confirmed: Boolean)
+    var
+        ReleasePurchDoc: Codeunit "Release Purchase Document";
     begin
         IsHandled := true;
         Confirmed := true;
+
+        if (PurchaseHeader.Status = PurchaseHeader.Status::Released) then//(GuiAllowed()) and 
+            ReleasePurchDoc.PerformManualReopen(PurchaseHeader);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", OnBeforeUpdatePurchLinesByFieldNo, '', false, false)]
     local procedure "Purchase Header_OnBeforeUpdatePurchLinesByFieldNo"(var PurchaseHeader: Record "Purchase Header"; ChangedFieldNo: Integer; var AskQuestion: Boolean; var IsHandled: Boolean)
     var
         "Field": Record "Field";
+        ReleasePurchDoc: Codeunit "Release Purchase Document";
     begin
         /* Field.SetRange(TableNo, Database::"Purchase Header");
         Field.SetRange("Field Caption", 'Currency Factor');
@@ -42,6 +48,9 @@ codeunit 50013 FDD119BatchPostPO
 
         if PurchaseHeader.FieldNo("Currency Factor") = ChangedFieldNo then
             AskQuestion := false;
+
+        if (PurchaseHeader.Status = PurchaseHeader.Status::Released) then//(GuiAllowed()) and 
+            ReleasePurchDoc.PerformManualReopen(PurchaseHeader);
     end;
 
 
