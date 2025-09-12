@@ -9,7 +9,7 @@ report 50000 "Finish multiple production ord"
     {
         dataitem(ProductionOrder; "Production Order")
         {
-            DataItemTableView = where(Status = filter(Released), Blocked = const(false));
+            DataItemTableView = where(Status = filter(Released), Blocked = const(true));
 
             trigger OnPreDataItem()
             begin
