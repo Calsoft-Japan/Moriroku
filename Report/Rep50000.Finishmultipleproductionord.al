@@ -139,6 +139,8 @@ report 50000 "Finish multiple production ord"
     [TryFunction]
     procedure CHGStatus(PrdOrd: Record "Production Order"; ReqUpdUnitCost: Boolean)
     begin
+        PrdOrd.Blocked := false;//Update to avoid error while change to finished.
+        PrdOrd.Modify();
         ProdOrderStatusMgt.ChangeProdOrderStatus(PrdOrd, PrdOrd.Status::Finished, Today(), ReqUpdUnitCost);
     end;
 
