@@ -24,8 +24,7 @@ page 50005 MTNA_IF_POHeader_API
         {
             repeater(Group)
             {
-                field(EntryNo;
-                Rec."Entry No.")
+                field(EntryNo; Rec."Entry No.")
                 {
                     Visible = false;
                     Editable = false;

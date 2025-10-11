@@ -18,6 +18,9 @@ codeunit 50001 MTNA_IF_CommonProcess
         CuMTNAIFPurchaseOrderProcess: Codeunit MTNAIFPurchaseOrderProcess;
         CuMTNAIFProductionOrderProcess: Codeunit MTNAIFProductionOrderProcess;
         CUMTNAIFPurchaseReceivingProcess: Codeunit MTNAIFPurchaseReceivingProcess;
+        CUMTNAIFStandardCostProcess: Codeunit MTNAIFStandardCostProcess;
+        CUMTNAIFItemJournalProcess: Codeunit MTNAIFItemJournalProcess;
+        CUMTNAIFItemReclasJournalProcess: Codeunit MTNAIFItemReclasJournalProcess;
         ErrorRecCount: Integer;
     begin
         if not CuMTNAIFOutputJournalProcess.ProcessAllData(ErrorRecCount) then begin
@@ -30,6 +33,15 @@ codeunit 50001 MTNA_IF_CommonProcess
         end;
 
         if not CUMTNAIFPurchaseReceivingProcess.ProcessAllData(ErrorRecCount) then begin
+        end;
+
+        if not CUMTNAIFStandardCostProcess.ProcessAllData(ErrorRecCount) then begin
+        end;
+
+        if not CUMTNAIFItemJournalProcess.ProcessAllData(ErrorRecCount) then begin
+        end;
+
+        if not CUMTNAIFItemReclasJournalProcess.ProcessAllData(ErrorRecCount) then begin
         end;
     end;
 
@@ -52,7 +64,7 @@ codeunit 50001 MTNA_IF_CommonProcess
             dateStr := format(ProcessStartTime, 22, '<Month,2>/<Day,2>/<Year4> <Hours12,2>:<Minutes,2>:<Seconds,2> <AM/PM>');
             subject := 'Error Notification - ' + FunctionName + ' Execution Failure';
             body := '<p>An error occurred in the ' + FunctionName + ' function at ' + dateStr + '. </p><br/>' +
-                    '<p>Details:</p>' ;
+                    '<p>Details:</p>';
             body += '<p>Function Name: ' + FunctionName + '</p>';
             RecCompanyInfo.Get();
             if RecCompanyInfo.Name <> '' then begin
@@ -70,6 +82,32 @@ codeunit 50001 MTNA_IF_CommonProcess
             isSent := SeendEmail(RecMTNAIFEmailNotification."E-Mail", '', subject, body);
         end;
     end;
+
+    procedure GetEnvironmentBaseUrl(): Text
+    var
+        BaseUrl: Text;
+    begin
+        // Generates a URL for the current client context (SaaS will include tenant/environment)
+        BaseUrl := System.GetUrl(ClientType::Current);
+        exit(BaseUrl);
+    end;
+
+    procedure GetPageUrl(PageId: Integer; CompanyName: Text): Text
+    var
+        Url: Text;
+        RecMN: Record MTNA_IF_ItemJournal;
+    begin
+        Url := System.GetUrl(
+            ClientType::Current,            // Use current client (Web) context
+            CompanyProperty.UrlName(),                    // Company name (exact display name)
+            ObjectType::Page,               // Target object type
+            PageId/*,                         // Page ID
+            RecMN,                            // Optional: record to open (must be set to the right key)
+            true*/                            // Include current filters in the URL when possible
+        );
+        exit(Url);
+    end;
+
 
     [TryFunction]
     procedure SeendEmail(EmailTo: Text; EmailCC: Text; EmailSubject: Text; EmailBody: Text)
