@@ -130,63 +130,6 @@ page 50026 MTNA_IF_POHeadersArc
             }
         }
     }
-    actions
-    {
-        area(Promoted)
-        {
-            group(Category_Process)
-            {
-                Caption = 'Process';
-
-                actionref("Archive Process"; "Archive")
-                {
-                }
-            }
-        }
-        area(Processing)
-        {
-            action("Archive")
-            {
-                ApplicationArea = All;
-                Image = Archive;
-                ToolTip = 'Adding temporary for unit testing';
-
-                trigger OnAction()
-                var
-                    RecSelectedPOHeader: Record "MTNA_IF_POHeaders";
-                    CuMTNAIFPurchaseOrderProcArc: Codeunit "MTNAIFPurchaseOrderProcArc";
-                    ErrorRecCount: Integer;
-                begin
-                    RecSelectedPOHeader.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedPOHeader);
-                    if (RecSelectedPOHeader.IsEmpty() = false) And (RecSelectedPOHeader.FindFirst()) then begin
-                        RecSelectedPOHeader.SetFilter(Status, '<> %1', RecSelectedPOHeader.Status::Completed);
-                        if (RecSelectedPOHeader.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedPOHeader.Status::Completed) + ''' status.');
-                            exit;
-                        end
-                        else if Confirm('Move the selected records to Archive?') = true then begin
-                            RecSelectedPOHeader.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedPOHeader);
-                            if RecSelectedPOHeader.FindFirst() then begin
-                                if CuMTNAIFPurchaseOrderProcArc.ProcArcPurchaseOrderData(RecSelectedPOHeader, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were moved to Archive.');
-                                    end
-                                    else begin
-                                        Message('Selected records were moved to Archive with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were moved to Archive with error(s).');
-                                end;
-                            end;
-                        end;
-                    end;
-                end;
-            }
-        }
-    }
 
     trigger OnAfterGetRecord()
     var
