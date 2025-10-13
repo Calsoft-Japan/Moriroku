@@ -5,6 +5,7 @@ page 50009 MTNA_IF_PurchaseReceiving
     Caption = 'MTNA IF Purchase Receiving';
     PageType = List;
     SourceTable = MTNA_IF_PurchaseReceiving;
+    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;

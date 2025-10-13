@@ -5,6 +5,7 @@ page 50007 MTNA_IF_ProductionOrder
     Caption = 'MTNA IF Production Order';
     PageType = List;
     SourceTable = MTNA_IF_ProductionOrder;
+    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;

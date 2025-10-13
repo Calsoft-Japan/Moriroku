@@ -1,16 +1,15 @@
-page 50004 "MTNA_IF_POLines"
+page 50027 "MTNA_IF_POLinesArc"
 {
-    //CS 2024/9/3 Channing.Zhou FDD302 Page for MTNA IF PO Line
-    //CS 2025/10/11 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
+    //CS 2025/10/11 Channing.Zhou FDD302 Page for MTNA IF PO Line Archive
     ApplicationArea = All;
-    Caption = 'MTNA IF Purchase Order Lines';
+    Caption = 'MTNA IF Purchase Order Lines Archive';
     PageType = List;
-    SourceTable = MTNA_IF_POLines;
-    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
+    SourceTable = MTNA_IF_POLinesArchive;
+    SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
-    ModifyAllowed = true;
+    ModifyAllowed = false;
 
     layout
     {

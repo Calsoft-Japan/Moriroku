@@ -5,6 +5,7 @@ page 50013 MTNA_IF_ItemJournal
     Caption = 'MTNA IF Item Journal';
     PageType = List;
     SourceTable = MTNA_IF_ItemJournal;
+    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;

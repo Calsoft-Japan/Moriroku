@@ -1,4 +1,4 @@
-codeunit 500014 MTNA_IF_CommonProcArc
+codeunit 50014 MTNA_IF_CommonProcArc
 {
     //CS 2025/10/10 Channing.Zhou FDD300 CodeUnit for MTNA IF Common Process Archive
     var
@@ -14,13 +14,13 @@ codeunit 500014 MTNA_IF_CommonProcArc
     [TryFunction]
     procedure ProcArcAllData()
     var
-        CuMTNAIFOutputJournalProcArc: Codeunit "MTNAIFOutputJournalProArc";
+        CuMTNAIFOutputJournalProcArc: Codeunit "MTNAIFOutputJournalProcArc";
         //CuMTNAIFPurchaseOrderProcess: Codeunit MTNAIFPurchaseOrderProcess;
         //CuMTNAIFProductionOrderProcess: Codeunit MTNAIFProductionOrderProcess;
         //CUMTNAIFPurchaseReceivingProcess: Codeunit MTNAIFPurchaseReceivingProcess;
         ErrorRecCount: Integer;
     begin
-        if not CuMTNAIFOutputJournalProcArc.ProcessAllData(ErrorRecCount) then begin
+        if not CuMTNAIFOutputJournalProcArc.ProcArcAllData(ErrorRecCount) then begin
         end;
 
         /*if not CuMTNAIFPurchaseOrderProcess.ProcessAllData(ErrorRecCount) then begin

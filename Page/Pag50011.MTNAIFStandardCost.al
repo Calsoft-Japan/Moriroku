@@ -5,6 +5,7 @@ page 50011 MTNA_IF_StandardCost
     Caption = 'MTNA IF Standard Cost';
     PageType = List;
     SourceTable = MTNA_IF_StandardCost;
+    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;

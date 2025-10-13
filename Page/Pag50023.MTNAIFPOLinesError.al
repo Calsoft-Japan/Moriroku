@@ -1,12 +1,11 @@
-page 50004 "MTNA_IF_POLines"
+page 50023 "MTNA_IF_POLinesError"
 {
-    //CS 2024/9/3 Channing.Zhou FDD302 Page for MTNA IF PO Line
-    //CS 2025/10/11 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
+    //CS 2025/10/11 Channing.Zhou FDD302 Page for MTNA IF PO Line Error
     ApplicationArea = All;
-    Caption = 'MTNA IF Purchase Order Lines';
+    Caption = 'MTNA IF Purchase Order Lines Error';
     PageType = List;
     SourceTable = MTNA_IF_POLines;
-    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
+    SourceTableView = where("Status" = const("MTNA IF Status"::Error));
     UsageCategory = Administration;
     DeleteAllowed = true;
     InsertAllowed = false;

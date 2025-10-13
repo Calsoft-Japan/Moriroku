@@ -7,8 +7,9 @@ page 50019 MTNA_IF_OutputJournalErr
     SourceTable = MTNA_IF_OutputJournal;
     SourceTableView = where("Status" = const("MTNA IF Status"::Error));
     UsageCategory = Administration;
-    DeleteAllowed = false;
+    DeleteAllowed = true;
     InsertAllowed = false;
+    ModifyAllowed = true;
 
     layout
     {

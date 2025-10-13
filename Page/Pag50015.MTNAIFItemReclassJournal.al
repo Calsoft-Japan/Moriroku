@@ -5,6 +5,7 @@ page 50015 MTNA_IF_ItemReclassJournal
     Caption = 'MTNA IF Item Reclass Journal';
     PageType = List;
     SourceTable = MTNA_IF_ItemReclassJournal;
+    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -33,67 +34,67 @@ page 50015 MTNA_IF_ItemReclassJournal
                 field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Posting date"; Rec."Posting date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Primary record ID"; Rec."Primary record ID")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("New Location Code"; Rec."New Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("New Bin Code"; Rec."New Bin Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Quantity"; Rec."Quantity")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Gen Bus Posting Group"; Rec."Gen Bus Posting Group")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {

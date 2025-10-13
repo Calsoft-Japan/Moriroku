@@ -1,16 +1,15 @@
-page 50003 MTNA_IF_POHeaders
+page 50024 MTNA_IF_POHeadersComp
 {
-    //CS 2024/9/3 Channing.Zhou FDD302 Page for MTNA IF PO Header
-    //CS 2025/10/11 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
+    //CS 2025/10/11 Channing.Zhou FDD302 Page for MTNA IF PO Header Completed
     ApplicationArea = All;
-    Caption = 'MTNA IF Purchase Orders';
+    Caption = 'MTNA IF Purchase Orders Copmpleted';
     PageType = List;
     SourceTable = MTNA_IF_POHeaders;
-    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
+    SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
-    ModifyAllowed = true;
+    ModifyAllowed = false;
 
     layout
     {
@@ -26,22 +25,17 @@ page 50003 MTNA_IF_POHeaders
 
                     trigger OnAssistEdit()
                     var
-                        PagMTNAIFPOLines: Page "MTNA_IF_POLines";
+                        PagMTNAIFPOLinesComp: Page "MTNA_IF_POLinesComp";
                         RecMTNAIFPOlines: Record "MTNA_IF_POLines";
                     begin
                         if Rec.IsEmpty() = false then begin
                             RecMTNAIFPOlines.Reset();
                             RecMTNAIFPOlines.SetRange("Header Entry No.", Rec."Entry No.");
                             if RecMTNAIFPOlines.FindFirst() then begin
-                                if Rec.Status = Rec.Status::Ready then begin
-                                    PagMTNAIFPOLines.SetPageEditable(true);
-                                end
-                                else begin
-                                    PagMTNAIFPOLines.SetPageEditable(false);
-                                end;
-                                PagMTNAIFPOLines.SetTableView(RecMTNAIFPOlines);
-                                PagMTNAIFPOLines.SetRecord(RecMTNAIFPOlines);
-                                PagMTNAIFPOLines.RunModal();
+                                PagMTNAIFPOLinesComp.SetPageEditable(false);
+                                PagMTNAIFPOLinesComp.SetTableView(RecMTNAIFPOlines);
+                                PagMTNAIFPOLinesComp.SetRecord(RecMTNAIFPOlines);
+                                PagMTNAIFPOLinesComp.RunModal();
                             end
                         end;
                     end;
@@ -59,57 +53,57 @@ page 50003 MTNA_IF_POHeaders
                 field(OrderID; Rec."Order ID")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field(VendorNo; Rec."Vendor No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field(YourReference; Rec."Your Reference")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field(LocationCode; Rec."Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field(OrderDate; Rec."Order Date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field(ShipmentMethodCode; Rec."Shipment Method Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field(ResponsibilityCenter; Rec."Responsibility Center")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field(RequestedReceiptDate; Rec."Requested Receipt Date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field(CurrencyCode; Rec."Currency Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field(ShortcutDimension1Code; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field(ShortcutDimension2Code; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {
@@ -142,46 +136,49 @@ page 50003 MTNA_IF_POHeaders
         {
             group(Category_Process)
             {
-                actionref("Rerun Process"; Rerun)
+                Caption = 'Process';
+
+                actionref("Archive Process"; "Archive")
                 {
                 }
             }
         }
         area(Processing)
         {
-            action("Rerun")
+            action("Archive")
             {
                 ApplicationArea = All;
-                Image = Process;
-                ToolTip = 'Keeping temporary for unit testing';
+                Image = Archive;
+                ToolTip = 'Adding temporary for unit testing';
+
                 trigger OnAction()
                 var
                     RecSelectedPOHeader: Record "MTNA_IF_POHeaders";
-                    CuMTNAIFPurchaseOrderProcess: Codeunit "MTNAIFPurchaseOrderProcess";
+                    CuMTNAIFPurchaseOrderProcArc: Codeunit "MTNAIFPurchaseOrderProcArc";
                     ErrorRecCount: Integer;
                 begin
                     RecSelectedPOHeader.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedPOHeader);
                     if (RecSelectedPOHeader.IsEmpty() = false) And (RecSelectedPOHeader.FindFirst()) then begin
-                        RecSelectedPOHeader.SetFilter(Status, '<> %1', RecSelectedPOHeader.Status::Ready);
+                        RecSelectedPOHeader.SetFilter(Status, '<> %1', RecSelectedPOHeader.Status::Completed);
                         if (RecSelectedPOHeader.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedPOHeader.Status::Ready) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedPOHeader.Status::Completed) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Re-run the interface program?') = true then begin
+                        else if Confirm('Move the selected records to Archive?') = true then begin
                             RecSelectedPOHeader.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedPOHeader);
                             if RecSelectedPOHeader.FindFirst() then begin
-                                if CuMTNAIFPurchaseOrderProcess.ProcessPurchaseOrderData(RecSelectedPOHeader, ErrorRecCount) then begin
+                                if CuMTNAIFPurchaseOrderProcArc.ProcArcPurchaseOrderData(RecSelectedPOHeader, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
+                                        Message('All selected records were moved to Archive.');
                                     end
                                     else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error(s).');
+                                        Message('Selected records were moved to Archive with ' + Format(ErrorRecCount) + ' error(s).');
                                     end;
                                 end
                                 else begin
-                                    Message('Selected records were re-processed with error(s).');
+                                    Message('Selected records were moved to Archive with error(s).');
                                 end;
                             end;
                         end;
@@ -196,18 +193,6 @@ page 50003 MTNA_IF_POHeaders
         inStream: InStream;
     begin
         Errormessage := Rec.GetErrormessage();
-    end;
-
-    trigger OnDeleteRecord(): Boolean
-    var
-        RecMTNA_IF_POLines: Record MTNA_IF_POLines;
-    begin
-        RecMTNA_IF_POLines.Reset();
-        RecMTNA_IF_POLines.SetRange("Header Entry No.", Rec."Entry No.");
-        if RecMTNA_IF_POLines.FindFirst() then begin
-            RecMTNA_IF_POLines.DeleteAll();
-        end;
-        exit(true);
     end;
 
     var

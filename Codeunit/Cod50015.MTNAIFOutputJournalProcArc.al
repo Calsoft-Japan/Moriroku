@@ -27,9 +27,6 @@ codeunit 50015 MTNAIFOutputJournalProcArc
     [TryFunction]
     procedure ProcArcOutputJournalData(var RecMTNA_IF_OutputJournal: Record "MTNA_IF_OutputJournal"; var ErrorRecCount: Integer)
     var
-        RecOutputJournalLine: Record "Item Journal Line";
-        ErrorMessageText: Text;
-        CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         RecMTNA_IF_OutputJournalArchive: Record "MTNA_IF_OutputJournalArchive";
     begin
         ErrorRecCount := 0;

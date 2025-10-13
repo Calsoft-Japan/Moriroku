@@ -1,13 +1,16 @@
 page 50001 MTNA_IF_OutputJournal
 {
     //CS 2024/8/13 Channing.Zhou FDD301 Page for MTNA IF Output Journal
+    //CS 2025/10/10 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
     ApplicationArea = All;
     Caption = 'MTNA IF Output Journal';
     PageType = List;
     SourceTable = MTNA_IF_OutputJournal;
+    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
-    DeleteAllowed = false;
+    DeleteAllowed = true;
     InsertAllowed = false;
+    ModifyAllowed = true;
 
     layout
     {
@@ -33,72 +36,72 @@ page 50001 MTNA_IF_OutputJournal
                 field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Posting date"; Rec."Posting date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Primary record ID"; Rec."Primary record ID")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Operation No."; Rec."Operation No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Machine Center Code"; Rec."Machine Center Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Output Quantity"; Rec."Output Quantity")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Work Shift Code"; Rec."Work Shift Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Scrap Quantity"; Rec."Scrap Quantity")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Scrap Code"; Rec."Scrap Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Setup Time"; Rec."Setup Time")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {
@@ -132,12 +135,6 @@ page 50001 MTNA_IF_OutputJournal
             group(Category_Process)
             {
                 Caption = 'Process';
-                actionref("Copy Records"; Copy)
-                {
-                }
-                actionref("Change Records Status"; "Change Status")
-                {
-                }
                 actionref("Rerun Process"; Rerun)
                 {
                 }
@@ -145,74 +142,11 @@ page 50001 MTNA_IF_OutputJournal
         }
         area(Processing)
         {
-            action(Copy)
-            {
-                ApplicationArea = All;
-                Image = CopyDocument;
-                //Enabled = CopyEnabled; //Control the button enabled by the selected records' status column
-                trigger OnAction()
-                var
-                    RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
-                    RecMTNAIFOutputJournal: Record "MTNA_IF_OutputJournal";
-                    "Last Entry No.": Integer;
-                begin
-                    RecSelectedOutputJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                    if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
-                        repeat
-                            RecMTNAIFOutputJournal.Reset();
-                            if RecMTNAIFOutputJournal.FindLast() then begin
-                                "Last Entry No." := RecMTNAIFOutputJournal."Entry No.";
-                                "Last Entry No." += 1;
-                                RecMTNAIFOutputJournal.Init();
-                                RecMTNAIFOutputJournal := RecSelectedOutputJournal;
-                                RecMTNAIFOutputJournal."Entry No." := "Last Entry No.";
-                                RecMTNAIFOutputJournal.Status := RecMTNAIFOutputJournal.Status::New;
-                                RecMTNAIFOutputJournal."Created datetime" := CurrentDateTime;
-                                RecMTNAIFOutputJournal."Process start datetime" := 0DT;
-                                RecMTNAIFOutputJournal."Processed datetime" := 0DT;
-                                RecMTNAIFOutputJournal.SetErrormessage('');
-                                RecMTNAIFOutputJournal.Insert(true);
-                            end;
-                        until RecSelectedOutputJournal.Next() = 0;
-                    end;
-                end;
-            }
-            action("Change status")
-            {
-                ApplicationArea = All;
-                Image = ChangeStatus;
-                //Enabled = ChangeStatusEnabled; //Control the button enabled by the selected records' status column
-                trigger OnAction()
-                var
-                    RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
-                begin
-                    RecSelectedOutputJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                    if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
-                        RecSelectedOutputJournal.SetFilter(Status, '<> %1', RecSelectedOutputJournal.Status::New);
-                        if (RecSelectedOutputJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedOutputJournal.Status::New) + ''' Status.');
-                            exit;
-                        end
-                        else if Confirm('Change status to ''' + Format(RecSelectedOutputJournal.Status::Ready) + '''?') = true then begin
-                            RecSelectedOutputJournal.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                            if RecSelectedOutputJournal.FindFirst() then begin
-                                repeat
-                                    RecSelectedOutputJournal.Status := RecSelectedOutputJournal.Status::Ready;
-                                    RecSelectedOutputJournal.Modify(true);
-                                until RecSelectedOutputJournal.Next() = 0;
-                            end;
-                        end;
-                    end;
-                end;
-            }
-
             action("Rerun")
             {
                 ApplicationArea = All;
                 Image = Process;
+                ToolTip = 'Keeping temporary for unit testing';
                 //Enabled = ReRunEnabled; //Control the button enabled by the selected records' status column
                 trigger OnAction()
                 var
@@ -251,60 +185,11 @@ page 50001 MTNA_IF_OutputJournal
         }
     }
 
-    /*
-    //Control the button enabled by the selected records' status column
-    trigger OnOpenPage()
-    begin
-        PageOpening := true;
-        CopyEnabled := false;
-        ChangeStatusEnabled := false;
-        ReRunEnabled := false;
-    end;
-
-    trigger OnAfterGetCurrRecord()
-    var
-        RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
-    begin
-        if not PageOpening then begin
-            RecSelectedOutputJournal.Reset();
-            CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-            if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
-                CopyEnabled := true;
-                RecSelectedOutputJournal.SetFilter(Status, '<> %1', RecSelectedOutputJournal.Status::New);
-                if (RecSelectedOutputJournal.FindFirst()) then begin
-                    ChangeStatusEnabled := false;
-                end
-                else begin
-                    ChangeStatusEnabled := true;
-                end;
-                RecSelectedOutputJournal.Reset();
-                CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                RecSelectedOutputJournal.SetFilter(Status, '<> %1', RecSelectedOutputJournal.Status::Ready);
-                if (RecSelectedOutputJournal.FindFirst()) then begin
-                    ReRunEnabled := false;
-                end
-                else begin
-                    ReRunEnabled := true;
-                end;
-            end
-            else begin
-                CopyEnabled := false;
-            end;
-        end;
-    end;*/
-
     trigger OnAfterGetRecord()
     begin
         Errormessage := Rec.GetErrormessage();
-        //PageOpening := false; //Control the button enabled by the selected records' status column
     end;
 
     var
         Errormessage: Text;
-    /*
-    //Control the button enabled by the selected records' status column
-    PageOpening: Boolean;
-    CopyEnabled: Boolean;
-    ChangeStatusEnabled: Boolean;
-    ReRunEnabled: Boolean;*/
 }
