@@ -164,6 +164,7 @@ page 50003 MTNA_IF_POHeaders
                 trigger OnAction()
                 var
                     RecSelectedPOHeader: Record "MTNA_IF_POHeaders";
+                    RecMTNA_IF_POLines: Record MTNA_IF_POLines;
                 begin
                     RecSelectedPOHeader.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedPOHeader);

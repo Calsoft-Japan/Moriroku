@@ -7,7 +7,7 @@ page 50030 MTNA_IF_ProductionOrderArc
     SourceTable = MTNA_IF_ProductionOrderArchive;
     SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
 

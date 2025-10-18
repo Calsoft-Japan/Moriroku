@@ -1,7 +1,7 @@
 table 50013 MTNA_IF_ProductionOrderArchive
 {
     //CS 2025/10/13 Channing.Zhou FDD304 Table for MTNA IF Production Order Archive
-    Caption = 'MTNA IF Production Order';
+    Caption = 'MTNA IF Production Order Archive';
 
     fields
     {
