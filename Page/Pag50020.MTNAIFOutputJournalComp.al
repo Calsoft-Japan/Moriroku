@@ -7,7 +7,7 @@ page 50020 MTNA_IF_OutputJournalComp
     SourceTable = MTNA_IF_OutputJournal;
     SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;
 

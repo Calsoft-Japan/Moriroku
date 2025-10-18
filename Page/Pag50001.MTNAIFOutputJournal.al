@@ -8,7 +8,7 @@ page 50001 MTNA_IF_OutputJournal
     SourceTable = MTNA_IF_OutputJournal;
     SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = true;
 
@@ -135,6 +135,11 @@ page 50001 MTNA_IF_OutputJournal
             group(Category_Process)
             {
                 Caption = 'Process';
+
+                actionref("Delete Process"; Delete)
+                {
+                }
+
                 actionref("Rerun Process"; Rerun)
                 {
                 }
@@ -142,6 +147,36 @@ page 50001 MTNA_IF_OutputJournal
         }
         area(Processing)
         {
+            action("Delete")
+            {
+                ApplicationArea = All;
+                Image = Delete;
+
+                trigger OnAction()
+                var
+                    RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
+                    ErrorRecCount: Integer;
+                begin
+                    RecSelectedOutputJournal.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
+                    if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
+                        RecSelectedOutputJournal.SetFilter(Status, '<> %1', RecSelectedOutputJournal.Status::Ready);
+                        if (RecSelectedOutputJournal.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedOutputJournal.Status::Ready) + ''' status.');
+                            exit;
+                        end
+                        else if Confirm('Go ahead and delete?') = true then begin
+                            RecSelectedOutputJournal.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
+                            if RecSelectedOutputJournal.FindFirst() then begin
+                                RecSelectedOutputJournal.DeleteAll();
+                                Message('Deleted successfuly.');
+                            end;
+                        end;
+                    end;
+                end;
+            }
+
             action("Rerun")
             {
                 ApplicationArea = All;

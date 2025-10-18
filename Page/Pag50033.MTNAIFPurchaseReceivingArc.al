@@ -1,16 +1,15 @@
-page 50009 MTNA_IF_PurchaseReceiving
+page 50033 MTNA_IF_PurchaseReceivingArc
 {
-    //CS 2024/8/13 Channing.Zhou FDD305 Page for MTNA IF Purchase Receiving
-    //CS 2025/10/15 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
+    //CS 2025/10/15 Channing.Zhou FDD305 Page for MTNA IF Purchase Receiving Archive
     ApplicationArea = All;
-    Caption = 'MTNA IF Purchase Receiving';
+    Caption = 'MTNA IF Purchase Receiving Archive';
     PageType = List;
-    SourceTable = MTNA_IF_PurchaseReceiving;
-    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
+    SourceTable = MTNA_IF_PurchaseReceivingArc;
+    SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
-    ModifyAllowed = true;
+    ModifyAllowed = false;
 
     layout
     {
@@ -36,42 +35,42 @@ page 50009 MTNA_IF_PurchaseReceiving
                 field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Posting date"; Rec."Posting date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Vendor Shipment No."; Rec."Vendor Shipment No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Qty. to Receive"; Rec."Qty. to Receive")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Lot Number"; Rec."Lot Number")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {
@@ -104,48 +103,39 @@ page 50009 MTNA_IF_PurchaseReceiving
         {
             group(Category_Process)
             {
-                actionref("Rerun Process"; Rerun)
+                Caption = 'Process';
+
+                actionref("Delete Process"; Delete)
                 {
                 }
             }
         }
+
         area(Processing)
         {
-            action("Rerun")
+            action("Delete")
             {
                 ApplicationArea = All;
-                Image = Process;
-                ToolTip = 'Keeping temporary for unit testing';
+                Image = Delete;
 
                 trigger OnAction()
                 var
-                    RecSelectedPurchaseReceiving: Record "MTNA_IF_PurchaseReceiving";
-                    CuMTNAIFPurchaseReceivingProcess: Codeunit "MTNAIFPurchaseReceivingProcess";
-                    ErrorRecCount: Integer;
+                    RecSelectedPurchaseReceivingArchive: Record "MTNA_IF_PurchaseReceivingArc";
                 begin
-                    RecSelectedPurchaseReceiving.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
-                    if (RecSelectedPurchaseReceiving.IsEmpty() = false) And (RecSelectedPurchaseReceiving.FindFirst()) then begin
-                        RecSelectedPurchaseReceiving.SetFilter(Status, '<> %1', RecSelectedPurchaseReceiving.Status::Ready);
-                        if (RecSelectedPurchaseReceiving.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceiving.Status::Ready) + ''' status.');
+                    RecSelectedPurchaseReceivingArchive.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedPurchaseReceivingArchive);
+                    if (RecSelectedPurchaseReceivingArchive.IsEmpty() = false) And (RecSelectedPurchaseReceivingArchive.FindFirst()) then begin
+                        RecSelectedPurchaseReceivingArchive.SetFilter(Status, '<> %1', RecSelectedPurchaseReceivingArchive.Status::Completed);
+                        if (RecSelectedPurchaseReceivingArchive.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceivingArchive.Status::Error) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Re-run the interface program?') = true then begin
-                            RecSelectedPurchaseReceiving.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
-                            if RecSelectedPurchaseReceiving.FindFirst() then begin
-                                if CuMTNAIFPurchaseReceivingProcess.ProcessPurchaseReceivingData(RecSelectedPurchaseReceiving, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
+                        else if Confirm('Go ahead and delete?') = true then begin
+                            RecSelectedPurchaseReceivingArchive.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedPurchaseReceivingArchive);
+                            if RecSelectedPurchaseReceivingArchive.FindFirst() then begin
+                                RecSelectedPurchaseReceivingArchive.DeleteAll();
+                                Message('Deleted successfuly.');
                             end;
                         end;
                     end;

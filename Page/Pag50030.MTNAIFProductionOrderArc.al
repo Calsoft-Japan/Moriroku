@@ -1,13 +1,13 @@
-page 50026 MTNA_IF_POHeadersArc
+page 50030 MTNA_IF_ProductionOrderArc
 {
-    //CS 2025/10/11 Channing.Zhou FDD302 Page for MTNA IF PO Header Archive
+    //CS 2025/10/13 Channing.Zhou FDD304 Page for MTNA IF Production Order Archive
     ApplicationArea = All;
-    Caption = 'MTNA IF Purchase Orders Arcive';
+    Caption = 'MTNA IF Production Order Archive';
     PageType = List;
-    SourceTable = MTNA_IF_POHeadersArchive;
+    SourceTable = MTNA_IF_ProductionOrderArchive;
     SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
     UsageCategory = Administration;
-    DeleteAllowed = false;
+    DeleteAllowed = true;
     InsertAllowed = false;
     ModifyAllowed = false;
 
@@ -21,24 +21,6 @@ page 50026 MTNA_IF_POHeadersArc
                 {
                     ApplicationArea = All;
                     Editable = false;
-                    AssistEdit = true;
-
-                    trigger OnAssistEdit()
-                    var
-                        PagMTNAIFPOLinesArc: Page "MTNA_IF_POLinesArc";
-                        RecMTNAIFPOlinesArchive: Record "MTNA_IF_POLinesArchive";
-                    begin
-                        if Rec.IsEmpty() = false then begin
-                            RecMTNAIFPOlinesArchive.Reset();
-                            RecMTNAIFPOlinesArchive.SetRange("Header Entry No.", Rec."Entry No.");
-                            if RecMTNAIFPOlinesArchive.FindFirst() then begin
-                                PagMTNAIFPOLinesArc.SetPageEditable(false);
-                                PagMTNAIFPOLinesArc.SetTableView(RecMTNAIFPOlinesArchive);
-                                PagMTNAIFPOLinesArc.SetRecord(RecMTNAIFPOlinesArchive);
-                                PagMTNAIFPOLinesArc.RunModal();
-                            end
-                        end;
-                    end;
                 }
                 field(Plant; Rec.Plant)
                 {
@@ -50,57 +32,52 @@ page 50026 MTNA_IF_POHeadersArc
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(OrderID; Rec."Order ID")
+                field("Order date"; Rec."Order date")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(VendorNo; Rec."Vendor No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(YourReference; Rec."Your Reference")
+                field("APS Starting Date"; Rec."APS Starting Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(LocationCode; Rec."Location Code")
+                field("APS Starting Time"; Rec."APS Starting Time")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(OrderDate; Rec."Order Date")
+                field("APS Ending Date"; Rec."APS Ending Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(ShipmentMethodCode; Rec."Shipment Method Code")
+                field("APS Ending Time"; Rec."APS Ending Time")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(ResponsibilityCenter; Rec."Responsibility Center")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(RequestedReceiptDate; Rec."Requested Receipt Date")
+                field("Quantity"; Rec."Quantity")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(CurrencyCode; Rec."Currency Code")
+                field("Work Center Code"; Rec."Work Center Code")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field(ShortcutDimension1Code; Rec."Shortcut Dimension 1 Code")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field(ShortcutDimension2Code; Rec."Shortcut Dimension 2 Code")
+                field("Production Order No."; Rec."Production Order No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -154,27 +131,21 @@ page 50026 MTNA_IF_POHeadersArc
 
                 trigger OnAction()
                 var
-                    RecSelectedPOHeaderArchive: Record "MTNA_IF_POHeadersArchive";
-                    RecMTNA_IF_POLinesArchive: Record MTNA_IF_POLinesArchive;
+                    RecSelectedProductionOrderArchive: Record "MTNA_IF_ProductionOrderArchive";
                 begin
-                    RecSelectedPOHeaderArchive.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedPOHeaderArchive);
-                    if (RecSelectedPOHeaderArchive.IsEmpty() = false) And (RecSelectedPOHeaderArchive.FindFirst()) then begin
-                        RecSelectedPOHeaderArchive.SetFilter(Status, '<> %1', RecSelectedPOHeaderArchive.Status::Completed);
-                        if (RecSelectedPOHeaderArchive.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedPOHeaderArchive.Status::Error) + ''' status.');
+                    RecSelectedProductionOrderArchive.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedProductionOrderArchive);
+                    if (RecSelectedProductionOrderArchive.IsEmpty() = false) And (RecSelectedProductionOrderArchive.FindFirst()) then begin
+                        RecSelectedProductionOrderArchive.SetFilter(Status, '<> %1', RecSelectedProductionOrderArchive.Status::Completed);
+                        if (RecSelectedProductionOrderArchive.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrderArchive.Status::Error) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin
-                            RecSelectedPOHeaderArchive.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedPOHeaderArchive);
-                            if RecSelectedPOHeaderArchive.FindFirst() then begin
-                                RecMTNA_IF_POLinesArchive.Reset();
-                                RecMTNA_IF_POLinesArchive.SetRange("Header Entry No.", Rec."Entry No.");
-                                if RecMTNA_IF_POLinesArchive.FindFirst() then begin
-                                    RecMTNA_IF_POLinesArchive.DeleteAll();
-                                end;
-                                RecSelectedPOHeaderArchive.DeleteAll();
+                            RecSelectedProductionOrderArchive.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedProductionOrderArchive);
+                            if RecSelectedProductionOrderArchive.FindFirst() then begin
+                                RecSelectedProductionOrderArchive.DeleteAll();
                                 Message('Deleted successfuly.');
                             end;
                         end;

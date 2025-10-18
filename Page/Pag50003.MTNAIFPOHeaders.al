@@ -8,7 +8,7 @@ page 50003 MTNA_IF_POHeaders
     SourceTable = MTNA_IF_POHeaders;
     SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = true;
 
@@ -142,13 +142,54 @@ page 50003 MTNA_IF_POHeaders
         {
             group(Category_Process)
             {
+                Caption = 'Process';
+
                 actionref("Rerun Process"; Rerun)
+                {
+                }
+
+                actionref("Delete Process"; Delete)
                 {
                 }
             }
         }
+
         area(Processing)
         {
+            action("Delete")
+            {
+                ApplicationArea = All;
+                Image = Delete;
+
+                trigger OnAction()
+                var
+                    RecSelectedPOHeader: Record "MTNA_IF_POHeaders";
+                begin
+                    RecSelectedPOHeader.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedPOHeader);
+                    if (RecSelectedPOHeader.IsEmpty() = false) And (RecSelectedPOHeader.FindFirst()) then begin
+                        RecSelectedPOHeader.SetFilter(Status, '<> %1', RecSelectedPOHeader.Status::Ready);
+                        if (RecSelectedPOHeader.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedPOHeader.Status::Ready) + ''' status.');
+                            exit;
+                        end
+                        else if Confirm('Go ahead and delete?') = true then begin
+                            RecSelectedPOHeader.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedPOHeader);
+                            if RecSelectedPOHeader.FindFirst() then begin
+                                RecMTNA_IF_POLines.Reset();
+                                RecMTNA_IF_POLines.SetRange("Header Entry No.", Rec."Entry No.");
+                                if RecMTNA_IF_POLines.FindFirst() then begin
+                                    RecMTNA_IF_POLines.DeleteAll();
+                                end;
+                                RecSelectedPOHeader.DeleteAll();
+                                Message('Deleted successfuly.');
+                            end;
+                        end;
+                    end;
+                end;
+            }
+
             action("Rerun")
             {
                 ApplicationArea = All;

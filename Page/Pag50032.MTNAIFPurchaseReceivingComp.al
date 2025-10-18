@@ -1,16 +1,15 @@
-page 50009 MTNA_IF_PurchaseReceiving
+page 50032 MTNA_IF_PurchaseReceivingComp
 {
-    //CS 2024/8/13 Channing.Zhou FDD305 Page for MTNA IF Purchase Receiving
-    //CS 2025/10/15 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
+    //CS 2025/10/15 Channing.Zhou FDD305 Page for MTNA IF Purchase Receiving Completed
     ApplicationArea = All;
-    Caption = 'MTNA IF Purchase Receiving';
+    Caption = 'MTNA IF Purchase Receiving Completed';
     PageType = List;
     SourceTable = MTNA_IF_PurchaseReceiving;
-    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
+    SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
-    ModifyAllowed = true;
+    ModifyAllowed = false;
 
     layout
     {
@@ -36,42 +35,42 @@ page 50009 MTNA_IF_PurchaseReceiving
                 field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Posting date"; Rec."Posting date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Vendor Shipment No."; Rec."Vendor Shipment No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Qty. to Receive"; Rec."Qty. to Receive")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Lot Number"; Rec."Lot Number")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = false;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {
@@ -104,6 +103,8 @@ page 50009 MTNA_IF_PurchaseReceiving
         {
             group(Category_Process)
             {
+                Caption = 'Process';
+
                 actionref("Rerun Process"; Rerun)
                 {
                 }

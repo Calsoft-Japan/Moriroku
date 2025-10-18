@@ -1,10 +1,10 @@
-page 50019 MTNA_IF_OutputJournalErr
+page 50028 MTNA_IF_ProductionOrderError
 {
-    //CS 2025/10/10 Channing.Zhou FDD301 Page for MTNA IF Output Journal Error
+    //CS 2025/10/13 Channing.Zhou FDD304 Page for MTNA IF Production Order Error
     ApplicationArea = All;
-    Caption = 'MTNA IF Output Journal Error';
+    Caption = 'MTNA IF Production Order Error';
     PageType = List;
-    SourceTable = MTNA_IF_OutputJournal;
+    SourceTable = MTNA_IF_ProductionOrder;
     SourceTableView = where("Status" = const("MTNA IF Status"::Error));
     UsageCategory = Administration;
     DeleteAllowed = false;
@@ -32,17 +32,7 @@ page 50019 MTNA_IF_OutputJournalErr
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Journal Batch Name"; Rec."Journal Batch Name")
-                {
-                    ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Error;
-                }
-                field("Posting date"; Rec."Posting date")
-                {
-                    ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Error;
-                }
-                field("Order No."; Rec."Order No.")
+                field("Order date"; Rec."Order date")
                 {
                     ApplicationArea = All;
                     Editable = Rec.Status = Rec.Status::Error;
@@ -52,12 +42,22 @@ page 50019 MTNA_IF_OutputJournalErr
                     ApplicationArea = All;
                     Editable = Rec.Status = Rec.Status::Error;
                 }
-                field("Primary record ID"; Rec."Primary record ID")
+                field("APS Starting Date"; Rec."APS Starting Date")
                 {
                     ApplicationArea = All;
                     Editable = Rec.Status = Rec.Status::Error;
                 }
-                field("Operation No."; Rec."Operation No.")
+                field("APS Starting Time"; Rec."APS Starting Time")
+                {
+                    ApplicationArea = All;
+                    Editable = Rec.Status = Rec.Status::Error;
+                }
+                field("APS Ending Date"; Rec."APS Ending Date")
+                {
+                    ApplicationArea = All;
+                    Editable = Rec.Status = Rec.Status::Error;
+                }
+                field("APS Ending Time"; Rec."APS Ending Time")
                 {
                     ApplicationArea = All;
                     Editable = Rec.Status = Rec.Status::Error;
@@ -67,37 +67,17 @@ page 50019 MTNA_IF_OutputJournalErr
                     ApplicationArea = All;
                     Editable = Rec.Status = Rec.Status::Error;
                 }
-                field("Bin Code"; Rec."Bin Code")
+                field("Quantity"; Rec."Quantity")
                 {
                     ApplicationArea = All;
                     Editable = Rec.Status = Rec.Status::Error;
                 }
-                field("Machine Center Code"; Rec."Machine Center Code")
+                field("Work Center Code"; Rec."Work Center Code")
                 {
                     ApplicationArea = All;
                     Editable = Rec.Status = Rec.Status::Error;
                 }
-                field("Output Quantity"; Rec."Output Quantity")
-                {
-                    ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Error;
-                }
-                field("Work Shift Code"; Rec."Work Shift Code")
-                {
-                    ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Error;
-                }
-                field("Scrap Quantity"; Rec."Scrap Quantity")
-                {
-                    ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Error;
-                }
-                field("Scrap Code"; Rec."Scrap Code")
-                {
-                    ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Error;
-                }
-                field("Setup Time"; Rec."Setup Time")
+                field("Production Order No."; Rec."Production Order No.")
                 {
                     ApplicationArea = All;
                     Editable = Rec.Status = Rec.Status::Error;
@@ -144,7 +124,6 @@ page 50019 MTNA_IF_OutputJournalErr
                 }
             }
         }
-
         area(Processing)
         {
             action("Delete")
@@ -154,21 +133,21 @@ page 50019 MTNA_IF_OutputJournalErr
 
                 trigger OnAction()
                 var
-                    RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
+                    RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";
                 begin
-                    RecSelectedOutputJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                    if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
-                        RecSelectedOutputJournal.SetFilter(Status, '<> %1', RecSelectedOutputJournal.Status::Error);
-                        if (RecSelectedOutputJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedOutputJournal.Status::Error) + ''' status.');
+                    RecSelectedProductionOrder.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
+                    if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
+                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Completed);
+                        if (RecSelectedProductionOrder.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::Error) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin
-                            RecSelectedOutputJournal.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                            if RecSelectedOutputJournal.FindFirst() then begin
-                                RecSelectedOutputJournal.DeleteAll();
+                            RecSelectedProductionOrder.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
+                            if RecSelectedProductionOrder.FindFirst() then begin
+                                RecSelectedProductionOrder.DeleteAll();
                                 Message('Deleted successfuly.');
                             end;
                         end;
@@ -180,32 +159,37 @@ page 50019 MTNA_IF_OutputJournalErr
             {
                 ApplicationArea = All;
                 Image = Process;
-                //Enabled = ReRunEnabled; //Control the button enabled by the selected records' status column
+                ToolTip = 'Keeping temporary for unit testing';
+
                 trigger OnAction()
                 var
-                    RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
-                    CuMTNAIFOutputJournalProcess: Codeunit "MTNAIFOutputJournalProcess";
+                    RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";
+                    CuMTNAIFProductionOrderProcess: Codeunit "MTNAIFProductionOrderProcess";
                     ErrorRecCount: Integer;
                 begin
-                    RecSelectedOutputJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                    if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
-                        RecSelectedOutputJournal.SetFilter(Status, '<> %1', RecSelectedOutputJournal.Status::Error);
-                        if (RecSelectedOutputJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedOutputJournal.Status::Error) + ''' status.');
+                    RecSelectedProductionOrder.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
+                    if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
+                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Ready);
+                        if (RecSelectedProductionOrder.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::Ready) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Re-run the selected records?') = true then begin
-                            RecSelectedOutputJournal.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                            if RecSelectedOutputJournal.FindFirst() then begin
-                                repeat
-                                    RecSelectedOutputJournal.Status := RecSelectedOutputJournal.Status::Ready;
-                                    RecSelectedOutputJournal."Process start datetime" := 0DT;
-                                    RecSelectedOutputJournal."Processed datetime" := 0DT;
-                                    RecSelectedOutputJournal.SetErrormessage('');
-                                    RecSelectedOutputJournal.Modify();
-                                until RecSelectedOutputJournal.Next() = 0;
+                        else if Confirm('Re-run the interface program?') = true then begin
+                            RecSelectedProductionOrder.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
+                            if RecSelectedProductionOrder.FindFirst() then begin
+                                if CuMTNAIFProductionOrderProcess.ProcessProductionOrderData(RecSelectedProductionOrder, ErrorRecCount) then begin
+                                    if ErrorRecCount = 0 then begin
+                                        Message('All selected records were re-processed.');
+                                    end
+                                    else begin
+                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error (s).');
+                                    end;
+                                end
+                                else begin
+                                    Message('Selected records were re-processed with error(s).');
+                                end;
                             end;
                         end;
                     end;
@@ -215,6 +199,8 @@ page 50019 MTNA_IF_OutputJournalErr
     }
 
     trigger OnAfterGetRecord()
+    var
+        inStream: InStream;
     begin
         Errormessage := Rec.GetErrormessage();
     end;

@@ -1,10 +1,10 @@
-page 50021 MTNA_IF_OutputJournalArc
+page 50029 MTNA_IF_ProductionOrderComp
 {
-    //CS 2025/10/10 Channing.Zhou FDD301 Page for MTNA IF Output Journal Archive
+    //CS 2025/10/13 Channing.Zhou FDD304 Page for MTNA IF Production Order Completed
     ApplicationArea = All;
-    Caption = 'MTNA IF Output Journal Archive';
+    Caption = 'MTNA IF Production Order Completed';
     PageType = List;
-    SourceTable = MTNA_IF_OutputJournalArchive;
+    SourceTable = MTNA_IF_ProductionOrder;
     SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
     UsageCategory = Administration;
     DeleteAllowed = false;
@@ -32,17 +32,7 @@ page 50021 MTNA_IF_OutputJournalArc
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Journal Batch Name"; Rec."Journal Batch Name")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Posting date"; Rec."Posting date")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Order No."; Rec."Order No.")
+                field("Order date"; Rec."Order date")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -52,12 +42,22 @@ page 50021 MTNA_IF_OutputJournalArc
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Primary record ID"; Rec."Primary record ID")
+                field("APS Starting Date"; Rec."APS Starting Date")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Operation No."; Rec."Operation No.")
+                field("APS Starting Time"; Rec."APS Starting Time")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+                field("APS Ending Date"; Rec."APS Ending Date")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+                field("APS Ending Time"; Rec."APS Ending Time")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -67,37 +67,17 @@ page 50021 MTNA_IF_OutputJournalArc
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Bin Code"; Rec."Bin Code")
+                field("Quantity"; Rec."Quantity")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Machine Center Code"; Rec."Machine Center Code")
+                field("Work Center Code"; Rec."Work Center Code")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Output Quantity"; Rec."Output Quantity")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Work Shift Code"; Rec."Work Shift Code")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Scrap Quantity"; Rec."Scrap Quantity")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Scrap Code"; Rec."Scrap Code")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Setup Time"; Rec."Setup Time")
+                field("Production Order No."; Rec."Production Order No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -127,8 +107,6 @@ page 50021 MTNA_IF_OutputJournalArc
             }
         }
     }
-
-
     actions
     {
         area(Promoted)
@@ -136,38 +114,48 @@ page 50021 MTNA_IF_OutputJournalArc
             group(Category_Process)
             {
                 Caption = 'Process';
-
-                actionref("Delete Process"; Delete)
+                actionref("Archive Process"; Archive)
                 {
                 }
             }
         }
-
         area(Processing)
         {
-            action("Delete")
+            action(Archive)
             {
                 ApplicationArea = All;
-                Image = Delete;
-
+                Image = Archive;
+                ToolTip = 'Adding temporary for unit testing';
+                //Enabled = ReRunEnabled; //Control the button enabled by the selected records' status column
                 trigger OnAction()
                 var
-                    RecSelectedOutputJournalArchive: Record "MTNA_IF_OutputJournalArchive";
+                    RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";
+                    CuMTNAIFProductionOrderProcArc: Codeunit "MTNAIFProductionOrderProcArc";
+                    ErrorRecCount: Integer;
                 begin
-                    RecSelectedOutputJournalArchive.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedOutputJournalArchive);
-                    if (RecSelectedOutputJournalArchive.IsEmpty() = false) And (RecSelectedOutputJournalArchive.FindFirst()) then begin
-                        RecSelectedOutputJournalArchive.SetFilter(Status, '<> %1', RecSelectedOutputJournalArchive.Status::Completed);
-                        if (RecSelectedOutputJournalArchive.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedOutputJournalArchive.Status::Error) + ''' status.');
+                    RecSelectedProductionOrder.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
+                    if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
+                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Completed);
+                        if (RecSelectedProductionOrder.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::Completed) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Go ahead and delete?') = true then begin
-                            RecSelectedOutputJournalArchive.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedOutputJournalArchive);
-                            if RecSelectedOutputJournalArchive.FindFirst() then begin
-                                RecSelectedOutputJournalArchive.DeleteAll();
-                                Message('Deleted successfuly.');
+                        else if Confirm('Move the selected records to Archive?') = true then begin
+                            RecSelectedProductionOrder.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
+                            if RecSelectedProductionOrder.FindFirst() then begin
+                                if CuMTNAIFProductionOrderProcArc.ProcArcProductionOrderData(RecSelectedProductionOrder, ErrorRecCount) then begin
+                                    if ErrorRecCount = 0 then begin
+                                        Message('All selected records were moved to Archive.');
+                                    end
+                                    else begin
+                                        Message('Selected records were moved to Archive with ' + Format(ErrorRecCount) + ' error(s).');
+                                    end;
+                                end
+                                else begin
+                                    Message('Selected records were moved to Archive with error(s).');
+                                end;
                             end;
                         end;
                     end;
@@ -177,6 +165,8 @@ page 50021 MTNA_IF_OutputJournalArc
     }
 
     trigger OnAfterGetRecord()
+    var
+        inStream: InStream;
     begin
         Errormessage := Rec.GetErrormessage();
     end;

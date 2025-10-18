@@ -1,14 +1,16 @@
 page 50007 MTNA_IF_ProductionOrder
 {
     //CS 2024/9/5 Channing.Zhou FDD304 Page for MTNA IF Production Order
+    //CS 2025/10/13 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
     ApplicationArea = All;
     Caption = 'MTNA IF Production Order';
     PageType = List;
     SourceTable = MTNA_IF_ProductionOrder;
     SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
-    DeleteAllowed = false;
+    DeleteAllowed = true;
     InsertAllowed = false;
+    ModifyAllowed = true;
 
     layout
     {
@@ -34,52 +36,52 @@ page 50007 MTNA_IF_ProductionOrder
                 field("Order date"; Rec."Order date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("APS Starting Date"; Rec."APS Starting Date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("APS Starting Time"; Rec."APS Starting Time")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("APS Ending Date"; Rec."APS Ending Date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("APS Ending Time"; Rec."APS Ending Time")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Quantity"; Rec."Quantity")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Work Center Code"; Rec."Work Center Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Production Order No."; Rec."Production Order No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Ready;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {
@@ -113,12 +115,11 @@ page 50007 MTNA_IF_ProductionOrder
             group(Category_Process)
             {
                 Caption = 'Process';
-                actionref("Copy Records"; Copy)
+
+                actionref("Delete Process"; Delete)
                 {
                 }
-                actionref("Change Records Status"; "Change Status")
-                {
-                }
+
                 actionref("Rerun Process"; Rerun)
                 {
                 }
@@ -126,42 +127,11 @@ page 50007 MTNA_IF_ProductionOrder
         }
         area(Processing)
         {
-            action(Copy)
+            action("Delete")
             {
                 ApplicationArea = All;
-                Image = CopyDocument;
-                trigger OnAction()
-                var
-                    RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";
-                    RecMTNAIFProductionOrder: Record "MTNA_IF_ProductionOrder";
-                    "Last Entry No.": Integer;
-                begin
-                    RecSelectedProductionOrder.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
-                    if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
-                        repeat
-                            RecMTNAIFProductionOrder.Reset();
-                            if RecMTNAIFProductionOrder.FindLast() then begin
-                                "Last Entry No." := RecMTNAIFProductionOrder."Entry No.";
-                                "Last Entry No." += 1;
-                                RecMTNAIFProductionOrder.Init();
-                                RecMTNAIFProductionOrder := RecSelectedProductionOrder;
-                                RecMTNAIFProductionOrder."Entry No." := "Last Entry No.";
-                                RecMTNAIFProductionOrder.Status := RecMTNAIFProductionOrder.Status::New;
-                                RecMTNAIFProductionOrder."Created datetime" := CurrentDateTime;
-                                RecMTNAIFProductionOrder."Process start datetime" := 0DT;
-                                RecMTNAIFProductionOrder."Processed datetime" := 0DT;
-                                RecMTNAIFProductionOrder.SetErrormessage('');
-                                RecMTNAIFProductionOrder.Insert(true);
-                            end;
-                        until RecSelectedProductionOrder.Next() = 0;
-                    end;
-                end;
-            }
-            action("Change status")
-            {
-                ApplicationArea = All;
-                Image = ChangeStatus;
+                Image = Delete;
+
                 trigger OnAction()
                 var
                     RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";
@@ -169,19 +139,17 @@ page 50007 MTNA_IF_ProductionOrder
                     RecSelectedProductionOrder.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
                     if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
-                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::New);
+                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Completed);
                         if (RecSelectedProductionOrder.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::New) + ''' Status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::Error) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Change status to ''' + Format(RecSelectedProductionOrder.Status::Ready) + '''?') = true then begin
+                        else if Confirm('Go ahead and delete?') = true then begin
                             RecSelectedProductionOrder.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
                             if RecSelectedProductionOrder.FindFirst() then begin
-                                repeat
-                                    RecSelectedProductionOrder.Status := RecSelectedProductionOrder.Status::Ready;
-                                    RecSelectedProductionOrder.Modify(true);
-                                until RecSelectedProductionOrder.Next() = 0;
+                                RecSelectedProductionOrder.DeleteAll();
+                                Message('Deleted successfuly.');
                             end;
                         end;
                     end;
@@ -192,6 +160,8 @@ page 50007 MTNA_IF_ProductionOrder
             {
                 ApplicationArea = All;
                 Image = Process;
+                ToolTip = 'Keeping temporary for unit testing';
+
                 trigger OnAction()
                 var
                     RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";

@@ -1,14 +1,13 @@
-page 50009 MTNA_IF_PurchaseReceiving
+page 50031 MTNA_IF_PurchaseReceivingError
 {
-    //CS 2024/8/13 Channing.Zhou FDD305 Page for MTNA IF Purchase Receiving
-    //CS 2025/10/15 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
+    //CS 2025/10/15 Channing.Zhou FDD305 Page for MTNA IF Purchase Receiving Error
     ApplicationArea = All;
-    Caption = 'MTNA IF Purchase Receiving';
+    Caption = 'MTNA IF Purchase Receiving Error';
     PageType = List;
     SourceTable = MTNA_IF_PurchaseReceiving;
-    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
+    SourceTableView = where("Status" = const("MTNA IF Status"::Error));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = true;
 
@@ -36,42 +35,42 @@ page 50009 MTNA_IF_PurchaseReceiving
                 field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Posting date"; Rec."Posting date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Vendor Shipment No."; Rec."Vendor Shipment No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Qty. to Receive"; Rec."Qty. to Receive")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Lot Number"; Rec."Lot Number")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {
@@ -104,6 +103,12 @@ page 50009 MTNA_IF_PurchaseReceiving
         {
             group(Category_Process)
             {
+                Caption = 'Process';
+
+                actionref("Delete Process"; Delete)
+                {
+                }
+
                 actionref("Rerun Process"; Rerun)
                 {
                 }
@@ -111,6 +116,35 @@ page 50009 MTNA_IF_PurchaseReceiving
         }
         area(Processing)
         {
+            action("Delete")
+            {
+                ApplicationArea = All;
+                Image = Delete;
+
+                trigger OnAction()
+                var
+                    RecSelectedPurchaseReceivingArchive: Record "MTNA_IF_PurchaseReceivingArc";
+                begin
+                    RecSelectedPurchaseReceivingArchive.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedPurchaseReceivingArchive);
+                    if (RecSelectedPurchaseReceivingArchive.IsEmpty() = false) And (RecSelectedPurchaseReceivingArchive.FindFirst()) then begin
+                        RecSelectedPurchaseReceivingArchive.SetFilter(Status, '<> %1', RecSelectedPurchaseReceivingArchive.Status::Completed);
+                        if (RecSelectedPurchaseReceivingArchive.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceivingArchive.Status::Error) + ''' status.');
+                            exit;
+                        end
+                        else if Confirm('Go ahead and delete?') = true then begin
+                            RecSelectedPurchaseReceivingArchive.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedPurchaseReceivingArchive);
+                            if RecSelectedPurchaseReceivingArchive.FindFirst() then begin
+                                RecSelectedPurchaseReceivingArchive.DeleteAll();
+                                Message('Deleted successfuly.');
+                            end;
+                        end;
+                    end;
+                end;
+            }
+
             action("Rerun")
             {
                 ApplicationArea = All;
