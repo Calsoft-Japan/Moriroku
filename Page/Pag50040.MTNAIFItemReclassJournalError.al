@@ -1,12 +1,11 @@
-page 50013 MTNA_IF_ItemJournal
+page 50040 MTNA_IF_ItemReclassJournalErr
 {
-    //CS 2024/9/5 Channing.Zhou FDD307 Page for MTNA IF Item Journal
-    //CS 2025/10/17 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
+    //CS 2025/10/20 Channing.Zhou FDD309 Page for MTNA IF Item Reclass Journal Error
     ApplicationArea = All;
-    Caption = 'MTNA IF Item Journal';
+    Caption = 'MTNA IF Item Reclass Journal Error';
     PageType = List;
-    SourceTable = MTNA_IF_ItemJournal;
-    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
+    SourceTable = MTNA_IF_ItemReclassJournal;
+    SourceTableView = where("Status" = const("MTNA IF Status"::Error));
     UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -36,62 +35,67 @@ page 50013 MTNA_IF_ItemJournal
                 field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
-                }
-                field("Entry Type"; Rec."Entry Type")
-                {
-                    ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Posting date"; Rec."Posting date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Primary record ID"; Rec."Primary record ID")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
+                }
+                field("New Location Code"; Rec."New Location Code")
+                {
+                    ApplicationArea = All;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
-                field("Quantity"; Rec."Quantity")
+                field("New Bin Code"; Rec."New Bin Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
+                }
+                field("Quantity"; Rec."Quantity")
+                {
+                    ApplicationArea = All;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Gen Bus Posting Group"; Rec."Gen Bus Posting Group")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {
@@ -124,7 +128,6 @@ page 50013 MTNA_IF_ItemJournal
         {
             group(Category_Process)
             {
-
                 Caption = 'Process';
 
                 actionref("Delete Process"; Delete)
@@ -145,21 +148,21 @@ page 50013 MTNA_IF_ItemJournal
 
                 trigger OnAction()
                 var
-                    RecSelectedItemJournal: Record "MTNA_IF_ItemJournal";
+                    RecSelectedItemReclassJournal: Record "MTNA_IF_ItemReclassJournal";
                 begin
-                    RecSelectedItemJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedItemJournal);
-                    if (RecSelectedItemJournal.IsEmpty() = false) And (RecSelectedItemJournal.FindFirst()) then begin
-                        RecSelectedItemJournal.SetFilter(Status, '<> %1', RecSelectedItemJournal.Status::Ready);
-                        if (RecSelectedItemJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedItemJournal.Status::Ready) + ''' status.');
+                    RecSelectedItemReclassJournal.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
+                    if (RecSelectedItemReclassJournal.IsEmpty() = false) And (RecSelectedItemReclassJournal.FindFirst()) then begin
+                        RecSelectedItemReclassJournal.SetFilter(Status, '<> %1', RecSelectedItemReclassJournal.Status::Error);
+                        if (RecSelectedItemReclassJournal.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedItemReclassJournal.Status::Error) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin
-                            RecSelectedItemJournal.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedItemJournal);
-                            if RecSelectedItemJournal.FindFirst() then begin
-                                RecSelectedItemJournal.DeleteAll();
+                            RecSelectedItemReclassJournal.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
+                            if RecSelectedItemReclassJournal.FindFirst() then begin
+                                RecSelectedItemReclassJournal.DeleteAll();
                                 Message('Deleted successfuly.');
                             end;
                         end;
@@ -171,35 +174,30 @@ page 50013 MTNA_IF_ItemJournal
             {
                 ApplicationArea = All;
                 Image = Process;
+
                 trigger OnAction()
                 var
-                    RecSelectedItemJournal: Record "MTNA_IF_ItemJournal";
-                    CuMTNAIFItemJournalProcess: Codeunit "MTNAIFItemJournalProcess";
-                    ErrorRecCount: Integer;
+                    RecSelectedItemReclassJournal: Record "MTNA_IF_ItemReclassJournal";
                 begin
-                    RecSelectedItemJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedItemJournal);
-                    if (RecSelectedItemJournal.IsEmpty() = false) And (RecSelectedItemJournal.FindFirst()) then begin
-                        RecSelectedItemJournal.SetFilter(Status, '<> %1', RecSelectedItemJournal.Status::Ready);
-                        if (RecSelectedItemJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedItemJournal.Status::Ready) + ''' status.');
+                    RecSelectedItemReclassJournal.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
+                    if (RecSelectedItemReclassJournal.IsEmpty() = false) And (RecSelectedItemReclassJournal.FindFirst()) then begin
+                        RecSelectedItemReclassJournal.SetFilter(Status, '<> %1', RecSelectedItemReclassJournal.Status::Error);
+                        if (RecSelectedItemReclassJournal.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedItemReclassJournal.Status::Error) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Re-run the interface program?') = true then begin
-                            RecSelectedItemJournal.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedItemJournal);
-                            if RecSelectedItemJournal.FindFirst() then begin
-                                if CuMTNAIFItemJournalProcess.ProcessItemJournalData(RecSelectedItemJournal, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
+                        else if Confirm('Re-run the selected records?') = true then begin
+                            RecSelectedItemReclassJournal.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
+                            if RecSelectedItemReclassJournal.FindFirst() then begin
+                                repeat
+                                    RecSelectedItemReclassJournal.Status := RecSelectedItemReclassJournal.Status::Ready;
+                                    RecSelectedItemReclassJournal."Process start datetime" := 0DT;
+                                    RecSelectedItemReclassJournal."Processed datetime" := 0DT;
+                                    RecSelectedItemReclassJournal.SetErrormessage('');
+                                    RecSelectedItemReclassJournal.Modify();
+                                until RecSelectedItemReclassJournal.Next() = 0;
                             end;
                         end;
                     end;

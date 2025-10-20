@@ -1,10 +1,10 @@
-page 50020 MTNA_IF_OutputJournalComp
+page 50035 MTNA_IF_StandardCostComp
 {
-    //CS 2025/10/10 Channing.Zhou FDD301 Page for MTNA IF Output Journal Completed
+    //CS 2025/10/16 Channing.Zhou FDD306 Page for MTNA IF Standard Cost Completed
     ApplicationArea = All;
-    Caption = 'MTNA IF Output Journal Completed';
+    Caption = 'MTNA IF Standard Cost Completed';
     PageType = List;
-    SourceTable = MTNA_IF_OutputJournal;
+    SourceTable = MTNA_IF_StandardCost;
     SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
     UsageCategory = Administration;
     DeleteAllowed = false;
@@ -32,72 +32,17 @@ page 50020 MTNA_IF_OutputJournalComp
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Journal Batch Name"; Rec."Journal Batch Name")
+                field("Standard Cost Worksheet Name"; Rec."Standard Cost Worksheet Name")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Posting date"; Rec."Posting date")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Order No."; Rec."Order No.")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Item No."; Rec."Item No.")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Primary record ID"; Rec."Primary record ID")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Operation No."; Rec."Operation No.")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Location Code"; Rec."Location Code")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Bin Code"; Rec."Bin Code")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Machine Center Code"; Rec."Machine Center Code")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Output Quantity"; Rec."Output Quantity")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Work Shift Code"; Rec."Work Shift Code")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Scrap Quantity"; Rec."Scrap Quantity")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Scrap Code"; Rec."Scrap Code")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Setup Time"; Rec."Setup Time")
+                field("New Standard Cost"; Rec."New Standard Cost")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -149,23 +94,23 @@ page 50020 MTNA_IF_OutputJournalComp
 
                 trigger OnAction()
                 var
-                    RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
-                    CuMTNAIFOutputJournalProcArc: Codeunit "MTNAIFOutputJournalProcArc";
+                    RecSelectedStandardCost: Record "MTNA_IF_StandardCost";
+                    CuMTNAIFStandardCostProcArc: Codeunit "MTNAIFStandardCostProcArc";
                     ErrorRecCount: Integer;
                 begin
-                    RecSelectedOutputJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                    if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
-                        RecSelectedOutputJournal.SetFilter(Status, '<> %1', RecSelectedOutputJournal.Status::Completed);
-                        if (RecSelectedOutputJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedOutputJournal.Status::Completed) + ''' status.');
+                    RecSelectedStandardCost.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedStandardCost);
+                    if (RecSelectedStandardCost.IsEmpty() = false) And (RecSelectedStandardCost.FindFirst()) then begin
+                        RecSelectedStandardCost.SetFilter(Status, '<> %1', RecSelectedStandardCost.Status::Completed);
+                        if (RecSelectedStandardCost.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedStandardCost.Status::Completed) + ''' status.');
                             exit;
                         end
                         else if Confirm('Move the selected records to Archive?') = true then begin
-                            RecSelectedOutputJournal.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                            if RecSelectedOutputJournal.FindFirst() then begin
-                                if CuMTNAIFOutputJournalProcArc.ProcArcOutputJournalData(RecSelectedOutputJournal, ErrorRecCount) then begin
+                            RecSelectedStandardCost.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedStandardCost);
+                            if RecSelectedStandardCost.FindFirst() then begin
+                                if CuMTNAIFStandardCostProcArc.ProcArcStandardCostData(RecSelectedStandardCost, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were moved to Archive.');
                                     end
@@ -185,6 +130,8 @@ page 50020 MTNA_IF_OutputJournalComp
     }
 
     trigger OnAfterGetRecord()
+    var
+        inStream: InStream;
     begin
         Errormessage := Rec.GetErrormessage();
     end;

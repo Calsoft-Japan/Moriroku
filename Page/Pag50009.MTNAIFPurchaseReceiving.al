@@ -104,6 +104,12 @@ page 50009 MTNA_IF_PurchaseReceiving
         {
             group(Category_Process)
             {
+                Caption = 'Process';
+
+                actionref("Delete Process"; Delete)
+                {
+                }
+
                 actionref("Rerun Process"; Rerun)
                 {
                 }
@@ -111,6 +117,35 @@ page 50009 MTNA_IF_PurchaseReceiving
         }
         area(Processing)
         {
+            action("Delete")
+            {
+                ApplicationArea = All;
+                Image = Delete;
+
+                trigger OnAction()
+                var
+                    RecSelectedPurchaseReceiving: Record "MTNA_IF_PurchaseReceiving";
+                begin
+                    RecSelectedPurchaseReceiving.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
+                    if (RecSelectedPurchaseReceiving.IsEmpty() = false) And (RecSelectedPurchaseReceiving.FindFirst()) then begin
+                        RecSelectedPurchaseReceiving.SetFilter(Status, '<> %1', RecSelectedPurchaseReceiving.Status::Completed);
+                        if (RecSelectedPurchaseReceiving.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceiving.Status::Error) + ''' status.');
+                            exit;
+                        end
+                        else if Confirm('Go ahead and delete?') = true then begin
+                            RecSelectedPurchaseReceiving.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
+                            if RecSelectedPurchaseReceiving.FindFirst() then begin
+                                RecSelectedPurchaseReceiving.DeleteAll();
+                                Message('Deleted successfuly.');
+                            end;
+                        end;
+                    end;
+                end;
+            }
+
             action("Rerun")
             {
                 ApplicationArea = All;

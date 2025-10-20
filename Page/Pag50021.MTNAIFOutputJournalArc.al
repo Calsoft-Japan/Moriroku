@@ -128,7 +128,6 @@ page 50021 MTNA_IF_OutputJournalArc
         }
     }
 
-
     actions
     {
         area(Promoted)

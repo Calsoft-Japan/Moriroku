@@ -1,10 +1,10 @@
-page 50020 MTNA_IF_OutputJournalComp
+page 50042 MTNA_IF_ItemReclassJournalArc
 {
-    //CS 2025/10/10 Channing.Zhou FDD301 Page for MTNA IF Output Journal Completed
+    //CS 2025/10/20 Channing.Zhou FDD309 Page for MTNA IF Item Reclass Journal Archive
     ApplicationArea = All;
-    Caption = 'MTNA IF Output Journal Completed';
+    Caption = 'MTNA IF Item Reclass Journal Archive';
     PageType = List;
-    SourceTable = MTNA_IF_OutputJournal;
+    SourceTable = MTNA_IF_ItemReclassJournalArc;
     SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
     UsageCategory = Administration;
     DeleteAllowed = false;
@@ -42,7 +42,7 @@ page 50020 MTNA_IF_OutputJournalComp
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Order No."; Rec."Order No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -57,12 +57,12 @@ page 50020 MTNA_IF_OutputJournalComp
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Operation No."; Rec."Operation No.")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Location Code"; Rec."Location Code")
+                field("New Location Code"; Rec."New Location Code")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -72,32 +72,27 @@ page 50020 MTNA_IF_OutputJournalComp
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Machine Center Code"; Rec."Machine Center Code")
+                field("New Bin Code"; Rec."New Bin Code")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Output Quantity"; Rec."Output Quantity")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Work Shift Code"; Rec."Work Shift Code")
+                field("Quantity"; Rec."Quantity")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Scrap Quantity"; Rec."Scrap Quantity")
+                field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = All;
                     Editable = false;
                 }
-                field("Scrap Code"; Rec."Scrap Code")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                }
-                field("Setup Time"; Rec."Setup Time")
+                field("Gen Bus Posting Group"; Rec."Gen Bus Posting Group")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -134,48 +129,38 @@ page 50020 MTNA_IF_OutputJournalComp
             group(Category_Process)
             {
                 Caption = 'Process';
-                actionref("Archive Process"; Archive)
+
+                actionref("Delete Process"; Delete)
                 {
                 }
             }
         }
+
         area(Processing)
         {
-            action(Archive)
+            action("Delete")
             {
                 ApplicationArea = All;
-                Image = Archive;
-                ToolTip = 'Adding temporary for unit testing';
+                Image = Delete;
 
                 trigger OnAction()
                 var
-                    RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
-                    CuMTNAIFOutputJournalProcArc: Codeunit "MTNAIFOutputJournalProcArc";
-                    ErrorRecCount: Integer;
+                    RecSelectedItemReclassJournalArchive: Record "MTNA_IF_ItemReclassJournalArc";
                 begin
-                    RecSelectedOutputJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                    if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
-                        RecSelectedOutputJournal.SetFilter(Status, '<> %1', RecSelectedOutputJournal.Status::Completed);
-                        if (RecSelectedOutputJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedOutputJournal.Status::Completed) + ''' status.');
+                    RecSelectedItemReclassJournalArchive.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedItemReclassJournalArchive);
+                    if (RecSelectedItemReclassJournalArchive.IsEmpty() = false) And (RecSelectedItemReclassJournalArchive.FindFirst()) then begin
+                        RecSelectedItemReclassJournalArchive.SetFilter(Status, '<> %1', RecSelectedItemReclassJournalArchive.Status::Completed);
+                        if (RecSelectedItemReclassJournalArchive.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedItemReclassJournalArchive.Status::Error) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Move the selected records to Archive?') = true then begin
-                            RecSelectedOutputJournal.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                            if RecSelectedOutputJournal.FindFirst() then begin
-                                if CuMTNAIFOutputJournalProcArc.ProcArcOutputJournalData(RecSelectedOutputJournal, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were moved to Archive.');
-                                    end
-                                    else begin
-                                        Message('Selected records were moved to Archive with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were moved to Archive with error(s).');
-                                end;
+                        else if Confirm('Go ahead and delete?') = true then begin
+                            RecSelectedItemReclassJournalArchive.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedItemReclassJournalArchive);
+                            if RecSelectedItemReclassJournalArchive.FindFirst() then begin
+                                RecSelectedItemReclassJournalArchive.DeleteAll();
+                                Message('Deleted successfuly.');
                             end;
                         end;
                     end;
@@ -185,6 +170,8 @@ page 50020 MTNA_IF_OutputJournalComp
     }
 
     trigger OnAfterGetRecord()
+    var
+        inStream: InStream;
     begin
         Errormessage := Rec.GetErrormessage();
     end;

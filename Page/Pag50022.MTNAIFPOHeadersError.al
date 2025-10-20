@@ -193,6 +193,7 @@ page 50022 MTNA_IF_POHeadersError
             {
                 ApplicationArea = All;
                 Image = Process;
+
                 trigger OnAction()
                 var
                     RecSelectedPOHeader: Record "MTNA_IF_POHeaders";

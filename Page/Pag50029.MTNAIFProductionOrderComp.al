@@ -126,7 +126,7 @@ page 50029 MTNA_IF_ProductionOrderComp
                 ApplicationArea = All;
                 Image = Archive;
                 ToolTip = 'Adding temporary for unit testing';
-                //Enabled = ReRunEnabled; //Control the button enabled by the selected records' status column
+
                 trigger OnAction()
                 var
                     RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";

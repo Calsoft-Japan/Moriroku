@@ -1,6 +1,6 @@
 codeunit 50017 MTNAIFProductionOrderProcArc
 {
-    //CS 2025/10/13 Channing.Zhou FDD301 CodeUnit for MTNA IF Production Order Process Archive
+    //CS 2025/10/15 Channing.Zhou FDD304 CodeUnit for MTNA IF Production Order Process Archive
 
     trigger OnRun()
     var

@@ -1,6 +1,7 @@
 page 50015 MTNA_IF_ItemReclassJournal
 {
     //CS 2024/9/5 Channing.Zhou FDD309 Page for MTNA IF Item Reclass Journal
+    //CS 2025/10/20 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
     ApplicationArea = All;
     Caption = 'MTNA IF Item Reclass Journal';
     PageType = List;
@@ -9,6 +10,7 @@ page 50015 MTNA_IF_ItemReclassJournal
     UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;
+    ModifyAllowed = true;
 
     layout
     {
@@ -128,12 +130,11 @@ page 50015 MTNA_IF_ItemReclassJournal
             group(Category_Process)
             {
                 Caption = 'Process';
-                actionref("Copy Records"; Copy)
+
+                actionref("Delete Process"; Delete)
                 {
                 }
-                actionref("Change Records Status"; "Change Status")
-                {
-                }
+
                 actionref("Rerun Process"; Rerun)
                 {
                 }
@@ -141,42 +142,11 @@ page 50015 MTNA_IF_ItemReclassJournal
         }
         area(Processing)
         {
-            action(Copy)
+            action("Delete")
             {
                 ApplicationArea = All;
-                Image = CopyDocument;
-                trigger OnAction()
-                var
-                    RecSelectedItemReclassJournal: Record "MTNA_IF_ItemReclassJournal";
-                    RecMTNAIFItemReclassJournal: Record "MTNA_IF_ItemReclassJournal";
-                    "Last Entry No.": Integer;
-                begin
-                    RecSelectedItemReclassJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
-                    if (RecSelectedItemReclassJournal.IsEmpty() = false) And (RecSelectedItemReclassJournal.FindFirst()) then begin
-                        repeat
-                            RecMTNAIFItemReclassJournal.Reset();
-                            if RecMTNAIFItemReclassJournal.FindLast() then begin
-                                "Last Entry No." := RecMTNAIFItemReclassJournal."Entry No.";
-                                "Last Entry No." += 1;
-                                RecMTNAIFItemReclassJournal.Init();
-                                RecMTNAIFItemReclassJournal := RecSelectedItemReclassJournal;
-                                RecMTNAIFItemReclassJournal."Entry No." := "Last Entry No.";
-                                RecMTNAIFItemReclassJournal.Status := RecMTNAIFItemReclassJournal.Status::New;
-                                RecMTNAIFItemReclassJournal."Created datetime" := CurrentDateTime;
-                                RecMTNAIFItemReclassJournal."Process start datetime" := 0DT;
-                                RecMTNAIFItemReclassJournal."Processed datetime" := 0DT;
-                                RecMTNAIFItemReclassJournal.SetErrormessage('');
-                                RecMTNAIFItemReclassJournal.Insert(true);
-                            end;
-                        until RecSelectedItemReclassJournal.Next() = 0;
-                    end;
-                end;
-            }
-            action("Change status")
-            {
-                ApplicationArea = All;
-                Image = ChangeStatus;
+                Image = Delete;
+
                 trigger OnAction()
                 var
                     RecSelectedItemReclassJournal: Record "MTNA_IF_ItemReclassJournal";
@@ -184,19 +154,17 @@ page 50015 MTNA_IF_ItemReclassJournal
                     RecSelectedItemReclassJournal.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
                     if (RecSelectedItemReclassJournal.IsEmpty() = false) And (RecSelectedItemReclassJournal.FindFirst()) then begin
-                        RecSelectedItemReclassJournal.SetFilter(Status, '<> %1', RecSelectedItemReclassJournal.Status::New);
+                        RecSelectedItemReclassJournal.SetFilter(Status, '<> %1', RecSelectedItemReclassJournal.Status::Ready);
                         if (RecSelectedItemReclassJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedItemReclassJournal.Status::New) + ''' Status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedItemReclassJournal.Status::Ready) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Change status to ''' + Format(RecSelectedItemReclassJournal.Status::Ready) + '''?') = true then begin
+                        else if Confirm('Go ahead and delete?') = true then begin
                             RecSelectedItemReclassJournal.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
                             if RecSelectedItemReclassJournal.FindFirst() then begin
-                                repeat
-                                    RecSelectedItemReclassJournal.Status := RecSelectedItemReclassJournal.Status::Ready;
-                                    RecSelectedItemReclassJournal.Modify(true);
-                                until RecSelectedItemReclassJournal.Next() = 0;
+                                RecSelectedItemReclassJournal.DeleteAll();
+                                Message('Deleted successfuly.');
                             end;
                         end;
                     end;

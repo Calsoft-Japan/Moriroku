@@ -123,21 +123,21 @@ page 50031 MTNA_IF_PurchaseReceivingError
 
                 trigger OnAction()
                 var
-                    RecSelectedPurchaseReceivingArchive: Record "MTNA_IF_PurchaseReceivingArc";
+                    RecSelectedPurchaseReceiving: Record "MTNA_IF_PurchaseReceiving";
                 begin
-                    RecSelectedPurchaseReceivingArchive.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedPurchaseReceivingArchive);
-                    if (RecSelectedPurchaseReceivingArchive.IsEmpty() = false) And (RecSelectedPurchaseReceivingArchive.FindFirst()) then begin
-                        RecSelectedPurchaseReceivingArchive.SetFilter(Status, '<> %1', RecSelectedPurchaseReceivingArchive.Status::Completed);
-                        if (RecSelectedPurchaseReceivingArchive.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceivingArchive.Status::Error) + ''' status.');
+                    RecSelectedPurchaseReceiving.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
+                    if (RecSelectedPurchaseReceiving.IsEmpty() = false) And (RecSelectedPurchaseReceiving.FindFirst()) then begin
+                        RecSelectedPurchaseReceiving.SetFilter(Status, '<> %1', RecSelectedPurchaseReceiving.Status::Completed);
+                        if (RecSelectedPurchaseReceiving.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceiving.Status::Error) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin
-                            RecSelectedPurchaseReceivingArchive.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedPurchaseReceivingArchive);
-                            if RecSelectedPurchaseReceivingArchive.FindFirst() then begin
-                                RecSelectedPurchaseReceivingArchive.DeleteAll();
+                            RecSelectedPurchaseReceiving.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
+                            if RecSelectedPurchaseReceiving.FindFirst() then begin
+                                RecSelectedPurchaseReceiving.DeleteAll();
                                 Message('Deleted successfuly.');
                             end;
                         end;
@@ -149,37 +149,30 @@ page 50031 MTNA_IF_PurchaseReceivingError
             {
                 ApplicationArea = All;
                 Image = Process;
-                ToolTip = 'Keeping temporary for unit testing';
 
                 trigger OnAction()
                 var
                     RecSelectedPurchaseReceiving: Record "MTNA_IF_PurchaseReceiving";
-                    CuMTNAIFPurchaseReceivingProcess: Codeunit "MTNAIFPurchaseReceivingProcess";
-                    ErrorRecCount: Integer;
                 begin
                     RecSelectedPurchaseReceiving.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
                     if (RecSelectedPurchaseReceiving.IsEmpty() = false) And (RecSelectedPurchaseReceiving.FindFirst()) then begin
-                        RecSelectedPurchaseReceiving.SetFilter(Status, '<> %1', RecSelectedPurchaseReceiving.Status::Ready);
+                        RecSelectedPurchaseReceiving.SetFilter(Status, '<> %1', RecSelectedPurchaseReceiving.Status::Error);
                         if (RecSelectedPurchaseReceiving.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceiving.Status::Ready) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceiving.Status::Error) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Re-run the interface program?') = true then begin
+                        else if Confirm('Re-run the selected records?') = true then begin
                             RecSelectedPurchaseReceiving.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
                             if RecSelectedPurchaseReceiving.FindFirst() then begin
-                                if CuMTNAIFPurchaseReceivingProcess.ProcessPurchaseReceivingData(RecSelectedPurchaseReceiving, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
+                                repeat
+                                    RecSelectedPurchaseReceiving.Status := RecSelectedPurchaseReceiving.Status::Ready;
+                                    RecSelectedPurchaseReceiving."Process start datetime" := 0DT;
+                                    RecSelectedPurchaseReceiving."Processed datetime" := 0DT;
+                                    RecSelectedPurchaseReceiving.SetErrormessage('');
+                                    RecSelectedPurchaseReceiving.Modify();
+                                until RecSelectedPurchaseReceiving.Next() = 0;
                             end;
                         end;
                     end;

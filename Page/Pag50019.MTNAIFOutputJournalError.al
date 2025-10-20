@@ -180,12 +180,10 @@ page 50019 MTNA_IF_OutputJournalErr
             {
                 ApplicationArea = All;
                 Image = Process;
-                //Enabled = ReRunEnabled; //Control the button enabled by the selected records' status column
+
                 trigger OnAction()
                 var
                     RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
-                    CuMTNAIFOutputJournalProcess: Codeunit "MTNAIFOutputJournalProcess";
-                    ErrorRecCount: Integer;
                 begin
                     RecSelectedOutputJournal.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedOutputJournal);

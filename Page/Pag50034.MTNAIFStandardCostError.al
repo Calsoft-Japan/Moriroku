@@ -1,12 +1,11 @@
-page 50011 MTNA_IF_StandardCost
+page 50034 MTNA_IF_StandardCostError
 {
-    //CS 2024/9/5 Channing.Zhou FDD306 Page for MTNA IF Standard Cost
-    //CS 2025/10/16 Channing.Zhou FDD300 V7.0 The page will only shows the Ready records and add delete button to the page.
+    //CS 2025/10/16 Channing.Zhou FDD306 Page for MTNA IF Standard Cost Error
     ApplicationArea = All;
-    Caption = 'MTNA IF Standard Cost';
+    Caption = 'MTNA IF Standard Cost Error';
     PageType = List;
     SourceTable = MTNA_IF_StandardCost;
-    SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
+    SourceTableView = where("Status" = const("MTNA IF Status"::Error));
     UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -36,17 +35,17 @@ page 50011 MTNA_IF_StandardCost
                 field("Standard Cost Worksheet Name"; Rec."Standard Cost Worksheet Name")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("New Standard Cost"; Rec."New Standard Cost")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::Ready;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {
@@ -104,9 +103,9 @@ page 50011 MTNA_IF_StandardCost
                     RecSelectedStandardCost.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedStandardCost);
                     if (RecSelectedStandardCost.IsEmpty() = false) And (RecSelectedStandardCost.FindFirst()) then begin
-                        RecSelectedStandardCost.SetFilter(Status, '<> %1', RecSelectedStandardCost.Status::Ready);
+                        RecSelectedStandardCost.SetFilter(Status, '<> %1', RecSelectedStandardCost.Status::Completed);
                         if (RecSelectedStandardCost.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedStandardCost.Status::Ready) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedStandardCost.Status::Error) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin
@@ -125,36 +124,30 @@ page 50011 MTNA_IF_StandardCost
             {
                 ApplicationArea = All;
                 Image = Process;
-                ToolTip = 'Keeping temporary for unit testing';
+
                 trigger OnAction()
                 var
                     RecSelectedStandardCost: Record "MTNA_IF_StandardCost";
-                    CuMTNAIFStandardCostProcess: Codeunit "MTNAIFStandardCostProcess";
-                    ErrorRecCount: Integer;
                 begin
                     RecSelectedStandardCost.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedStandardCost);
                     if (RecSelectedStandardCost.IsEmpty() = false) And (RecSelectedStandardCost.FindFirst()) then begin
-                        RecSelectedStandardCost.SetFilter(Status, '<> %1', RecSelectedStandardCost.Status::Ready);
+                        RecSelectedStandardCost.SetFilter(Status, '<> %1', RecSelectedStandardCost.Status::Error);
                         if (RecSelectedStandardCost.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedStandardCost.Status::Ready) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedStandardCost.Status::Error) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Re-run the interface program?') = true then begin
+                        else if Confirm('Re-run the selected records?') = true then begin
                             RecSelectedStandardCost.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedStandardCost);
                             if RecSelectedStandardCost.FindFirst() then begin
-                                if CuMTNAIFStandardCostProcess.ProcessStandardCostData(RecSelectedStandardCost, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
+                                repeat
+                                    RecSelectedStandardCost.Status := RecSelectedStandardCost.Status::Ready;
+                                    RecSelectedStandardCost."Process start datetime" := 0DT;
+                                    RecSelectedStandardCost."Processed datetime" := 0DT;
+                                    RecSelectedStandardCost.SetErrormessage('');
+                                    RecSelectedStandardCost.Modify();
+                                until RecSelectedStandardCost.Next() = 0;
                             end;
                         end;
                     end;

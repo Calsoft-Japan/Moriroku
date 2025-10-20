@@ -1,6 +1,6 @@
-codeunit 50018 MTNAIFPurchaseReceivingProcArc
+codeunit 50017 MTNAIFProductionOrderProcArc
 {
-    //CS 2025/10/15 Channing.Zhou FDD301 CodeUnit for MTNA IF Purchase Receiving Process Archive
+    //CS 2025/10/13 Channing.Zhou FDD304 CodeUnit for MTNA IF Production Order Process Archive
 
     trigger OnRun()
     var
@@ -13,30 +13,30 @@ codeunit 50018 MTNAIFPurchaseReceivingProcArc
     [TryFunction]
     procedure ProcArcAllData(var ErrorRecCount: Integer)
     var
-        RecMTNA_IF_PurchaseReceiving: Record "MTNA_IF_PurchaseReceiving";
+        RecMTNA_IF_ProductionOrder: Record "MTNA_IF_ProductionOrder";
     begin
-        RecMTNA_IF_PurchaseReceiving.Reset();
-        RecMTNA_IF_PurchaseReceiving.SetRange(Status, RecMTNA_IF_PurchaseReceiving.Status::Completed);
+        RecMTNA_IF_ProductionOrder.Reset();
+        RecMTNA_IF_ProductionOrder.SetRange(Status, RecMTNA_IF_ProductionOrder.Status::Completed);
         /* Will add logic to check if the records need to process archive delay*/
         /**/
-        if RecMTNA_IF_PurchaseReceiving.FindFirst() then begin
-            ProcArcPurchaseReceivingData(RecMTNA_IF_PurchaseReceiving, ErrorRecCount);
+        if RecMTNA_IF_ProductionOrder.FindFirst() then begin
+            ProcArcProductionOrderData(RecMTNA_IF_ProductionOrder, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcArcPurchaseReceivingData(var RecMTNA_IF_PurchaseReceiving: Record "MTNA_IF_PurchaseReceiving"; var ErrorRecCount: Integer)
+    procedure ProcArcProductionOrderData(var RecMTNA_IF_ProductionOrder: Record "MTNA_IF_ProductionOrder"; var ErrorRecCount: Integer)
     var
-        RecMTNA_IF_PurchaseReceivingArchive: Record "MTNA_IF_PurchaseReceivingArc";
+        RecMTNA_IF_ProductionOrderArchive: Record "MTNA_IF_ProductionOrderArchive";
     begin
         ErrorRecCount := 0;
-        if RecMTNA_IF_PurchaseReceiving.FindFirst() then begin
+        if RecMTNA_IF_ProductionOrder.FindFirst() then begin
             repeat
-                RecMTNA_IF_PurchaseReceivingArchive.Init();
-                RecMTNA_IF_PurchaseReceivingArchive.TransferFields(RecMTNA_IF_PurchaseReceiving);
-                RecMTNA_IF_PurchaseReceivingArchive.Insert();
-            until RecMTNA_IF_PurchaseReceiving.Next() = 0;
-            RecMTNA_IF_PurchaseReceiving.DeleteAll();
+                RecMTNA_IF_ProductionOrderArchive.Init();
+                RecMTNA_IF_ProductionOrderArchive.TransferFields(RecMTNA_IF_ProductionOrder);
+                RecMTNA_IF_ProductionOrderArchive.Insert();
+            until RecMTNA_IF_ProductionOrder.Next() = 0;
+            RecMTNA_IF_ProductionOrder.DeleteAll();
         end;
     end;
 }

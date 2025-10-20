@@ -159,37 +159,30 @@ page 50028 MTNA_IF_ProductionOrderError
             {
                 ApplicationArea = All;
                 Image = Process;
-                ToolTip = 'Keeping temporary for unit testing';
 
                 trigger OnAction()
                 var
                     RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";
-                    CuMTNAIFProductionOrderProcess: Codeunit "MTNAIFProductionOrderProcess";
-                    ErrorRecCount: Integer;
                 begin
                     RecSelectedProductionOrder.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
                     if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
-                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Ready);
+                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Error);
                         if (RecSelectedProductionOrder.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::Ready) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::Error) + ''' status.');
                             exit;
                         end
-                        else if Confirm('Re-run the interface program?') = true then begin
+                        else if Confirm('Re-run the selected records?') = true then begin
                             RecSelectedProductionOrder.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
                             if RecSelectedProductionOrder.FindFirst() then begin
-                                if CuMTNAIFProductionOrderProcess.ProcessProductionOrderData(RecSelectedProductionOrder, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error (s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
+                                repeat
+                                    RecSelectedProductionOrder.Status := RecSelectedProductionOrder.Status::Ready;
+                                    RecSelectedProductionOrder."Process start datetime" := 0DT;
+                                    RecSelectedProductionOrder."Processed datetime" := 0DT;
+                                    RecSelectedProductionOrder.SetErrormessage('');
+                                    RecSelectedProductionOrder.Modify();
+                                until RecSelectedProductionOrder.Next() = 0;
                             end;
                         end;
                     end;
