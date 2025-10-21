@@ -130,8 +130,8 @@ report 50000 "Finish multiple production ord"
     begin
         Commit();
 
-        if ErrorText <> '' then
-            Error(ErrorText);
+        //if ErrorText <> '' then
+        //    Error(ErrorText);
     end;
 
 
