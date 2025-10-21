@@ -1,4 +1,4 @@
-page 50028 MTNA_IF_ProductionOrderError
+page 50028 MTNA_IF_ProductionOrderErr
 {
     //CS 2025/10/13 Channing.Zhou FDD304 Page for MTNA IF Production Order Error
     ApplicationArea = All;

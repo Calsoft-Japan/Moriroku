@@ -1,4 +1,4 @@
-page 50037 MTNA_IF_ItemJournalError
+page 50037 MTNA_IF_ItemJournalErr
 {
     //CS 2025/10/17 Channing.Zhou FDD307 Page for MTNA IF Item Journal Error
     ApplicationArea = All;

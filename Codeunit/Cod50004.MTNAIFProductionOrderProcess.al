@@ -1,6 +1,8 @@
 codeunit 50004 MTNAIFProductionOrderProcess
 {
     //CS 2024/9/5 Channing.Zhou FDD304 CodeUnit for MTNA IF Production Order Process
+    //CS 2025/10/21 Channing.Zhou FDD300 V7 Change the notification email contents, add error information page url.
+
     trigger OnRun()
     var
         ErrorRecCount: Integer;
@@ -57,6 +59,9 @@ codeunit 50004 MTNAIFProductionOrderProcess
                             end
                             else begin
                                 ErrorMessageText := GetLastErrorText();
+                                RecMTNA_IF_ProductionOrder.Status := RecMTNA_IF_ProductionOrder.Status::Error;
+                                RecMTNA_IF_ProductionOrder.SetErrormessage(ErrorMessageText);
+                                RecMTNA_IF_ProductionOrder.Modify();
                                 ProductionOrderErrorMessage(RecMTNA_IF_ProductionOrder, ErrorMessageText);
                                 ErrorRecCount += 1;
                                 PORollback(RecMTNA_IF_ProductionOrder);
@@ -64,6 +69,9 @@ codeunit 50004 MTNAIFProductionOrderProcess
                         end
                         else begin
                             ErrorMessageText := GetLastErrorText();
+                            RecMTNA_IF_ProductionOrder.Status := RecMTNA_IF_ProductionOrder.Status::Error;
+                            RecMTNA_IF_ProductionOrder.SetErrormessage(ErrorMessageText);
+                            RecMTNA_IF_ProductionOrder.Modify();
                             ProductionOrderErrorMessage(RecMTNA_IF_ProductionOrder, ErrorMessageText);
                             ErrorRecCount += 1;
                             PORollback(RecMTNA_IF_ProductionOrder);
@@ -348,12 +356,15 @@ codeunit 50004 MTNAIFProductionOrderProcess
     local procedure ProductionOrderErrorMessage(var RecMTNA_IF_ProductionOrder: Record MTNA_IF_ProductionOrder; ErrorMessageText: Text)
     var
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
+        pagMTNA_IF_ProductionOrderErr: Page "MTNA_IF_ProductionOrderErr";
+        RecRef: RecordRef;
     begin
         RecMTNA_IF_ProductionOrder.Status := RecMTNA_IF_ProductionOrder.Status::Error;
         RecMTNA_IF_ProductionOrder.SetErrormessage('Error occurred when inserting Production order. The detailed error message is: ' + ErrorMessageText);
         RecMTNA_IF_ProductionOrder.Modify();
+        RecRef.GetTable(RecMTNA_IF_ProductionOrder);
         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF ProductionOrder Process Insert', RecMTNA_IF_ProductionOrder.Plant, Format(RecMTNA_IF_ProductionOrder."Entry No."),
-            RecMTNA_IF_ProductionOrder."Process start datetime", ErrorMessageText) then begin
+            RecMTNA_IF_ProductionOrder."Process start datetime", ErrorMessageText, pagMTNA_IF_ProductionOrderErr.Caption, pagMTNA_IF_ProductionOrderErr.ObjectId(false), RecRef) then begin
         end;
     end;
 

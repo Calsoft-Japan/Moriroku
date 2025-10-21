@@ -1,4 +1,4 @@
-page 50023 "MTNA_IF_POLinesError"
+page 50023 "MTNA_IF_POLinesErr"
 {
     //CS 2025/10/11 Channing.Zhou FDD302 Page for MTNA IF PO Line Error
     ApplicationArea = All;

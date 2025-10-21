@@ -1,6 +1,7 @@
 codeunit 50007 MTNAIFItemJournalProcess
 {
     //CS 2024/9/5 Channing.Zhou FDD307 CodeUnit for MTNA IF Item Journal Process
+    //CS 2025/10/21 Channing.Zhou FDD300 V7 Change the notification email contents, add error information page url.
 
     var
         CurrentJnlTemplateName: Code[10];
@@ -32,6 +33,8 @@ codeunit 50007 MTNAIFItemJournalProcess
         ErrorMessageText: Text;
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         RecReservationEntry: Record "Reservation Entry";
+        pagMTNA_IF_ItemJournalErr: Page "MTNA_IF_ItemJournalErr";
+        RecRef: RecordRef;
     begin
         ErrorRecCount := 0;
         CurrentJnlTemplateName := 'Item';
@@ -75,8 +78,9 @@ codeunit 50007 MTNAIFItemJournalProcess
                                 RecReservationEntry.DeleteAll(true);
                             end;
                             RecItemJournalLine.Delete(true);
+                            RecRef.GetTable(RecMTNA_IF_ItemJournal);
                             if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Item Journal Process Post', RecMTNA_IF_ItemJournal.Plant, Format(RecMTNA_IF_ItemJournal."Entry No."),
-                                RecMTNA_IF_ItemJournal."Process start datetime", ErrorMessageText) then begin
+                                RecMTNA_IF_ItemJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemJournalErr.Caption, pagMTNA_IF_ItemJournalErr.ObjectId(false), RecRef) then begin
                             end;
                             ErrorRecCount += 1;
                         end;
@@ -86,8 +90,9 @@ codeunit 50007 MTNAIFItemJournalProcess
                         RecMTNA_IF_ItemJournal.Status := RecMTNA_IF_ItemJournal.Status::Error;
                         RecMTNA_IF_ItemJournal.SetErrormessage('Error occurred when inserting Item Journal Line. The detailed error message is: ' + ErrorMessageText);
                         RecMTNA_IF_ItemJournal.Modify();
+                        RecRef.GetTable(RecMTNA_IF_ItemJournal);
                         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Item Journal Process Insert', RecMTNA_IF_ItemJournal.Plant, Format(RecMTNA_IF_ItemJournal."Entry No."),
-                            RecMTNA_IF_ItemJournal."Process start datetime", ErrorMessageText) then begin
+                            RecMTNA_IF_ItemJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemJournalErr.Caption, pagMTNA_IF_ItemJournalErr.ObjectId(false), RecRef) then begin
                         end;
                         ErrorRecCount += 1;
                     end;

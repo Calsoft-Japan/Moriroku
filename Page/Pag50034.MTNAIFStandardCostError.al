@@ -1,4 +1,4 @@
-page 50034 MTNA_IF_StandardCostError
+page 50034 MTNA_IF_StandardCostErr
 {
     //CS 2025/10/16 Channing.Zhou FDD306 Page for MTNA IF Standard Cost Error
     ApplicationArea = All;

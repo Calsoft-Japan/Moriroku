@@ -1,6 +1,7 @@
 codeunit 50006 MTNAIFStandardCostProcess
 {
     //CS 2024/8/13 Channing.Zhou FDD306 CodeUnit for MTNA IF Standard Cost Process
+    //CS 2025/10/21 Channing.Zhou FDD300 V7 Change the notification email contents, add error information page url.
 
     trigger OnRun()
     var
@@ -29,6 +30,8 @@ codeunit 50006 MTNAIFStandardCostProcess
         ErrorMessageText: Text;
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         RecLastProcessingIFStandarCost: Record "MTNA_IF_StandardCost" temporary;
+        pagMTNA_IF_StandardCostErr: Page "MTNA_IF_StandardCostErr";
+        RecRef: RecordRef;
     begin
         ErrorRecCount := 0;
         RecMTNA_IF_StandardCost.SetCurrentKey(Plant, "Standard Cost Worksheet Name");
@@ -58,8 +61,9 @@ codeunit 50006 MTNAIFStandardCostProcess
                         RecMTNA_IF_StandardCost.Status := RecMTNA_IF_StandardCost.Status::Error;
                         RecMTNA_IF_StandardCost.SetErrormessage('Error occurred when inserting Standard Cost Worksheet Line. The detailed error message is: ' + ErrorMessageText);
                         RecMTNA_IF_StandardCost.Modify();
+                        RecRef.GetTable(RecMTNA_IF_StandardCost);
                         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Standard Cost Worksheet Process Insert', RecMTNA_IF_StandardCost.Plant, Format(RecMTNA_IF_StandardCost."Entry No."),
-                            RecMTNA_IF_StandardCost."Process start datetime", ErrorMessageText) then begin
+                            RecMTNA_IF_StandardCost."Process start datetime", ErrorMessageText, pagMTNA_IF_StandardCostErr.Caption, pagMTNA_IF_StandardCostErr.ObjectId(false), RecRef) then begin
                         end;
                         ErrorRecCount += 1;
                     end;

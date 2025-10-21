@@ -1,4 +1,4 @@
-page 50022 MTNA_IF_POHeadersError
+page 50022 MTNA_IF_POHeadersErr
 {
     //CS 2025/10/11 Channing.Zhou FDD302 Page for MTNA IF PO Header Error
     ApplicationArea = All;
@@ -25,7 +25,7 @@ page 50022 MTNA_IF_POHeadersError
 
                     trigger OnAssistEdit()
                     var
-                        PagMTNAIFPOLinesError: Page "MTNA_IF_POLinesError";
+                        PagMTNAIFPOLinesError: Page "MTNA_IF_POLinesErr";
                         RecMTNAIFPOlines: Record "MTNA_IF_POLines";
                     begin
                         if Rec.IsEmpty() = false then begin

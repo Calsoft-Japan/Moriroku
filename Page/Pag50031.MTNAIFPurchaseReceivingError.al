@@ -1,4 +1,4 @@
-page 50031 MTNA_IF_PurchaseReceivingError
+page 50031 MTNA_IF_PurchaseReceivingErr
 {
     //CS 2025/10/15 Channing.Zhou FDD305 Page for MTNA IF Purchase Receiving Error
     ApplicationArea = All;

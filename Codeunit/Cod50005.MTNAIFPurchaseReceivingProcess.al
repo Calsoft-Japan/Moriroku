@@ -1,6 +1,8 @@
 codeunit 50005 MTNAIFPurchaseReceivingProcess
 {
     //CS 2024/9/5 Channing.Zhou FDD305 CodeUnit for MTNA IF Purchase Receiving Process
+    //CS 2025/10/21 Channing.Zhou FDD300 V7 Change the notification email contents, add error information page url.
+
     trigger OnRun()
     var
         ErrorRecCount: Integer;
@@ -29,6 +31,8 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
         ErrorMessageText: Text;
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         RecReservationEntry: Record "Reservation Entry";
+        pagMTNA_IF_PurchaseReceivingErr: Page "MTNA_IF_PurchaseReceivingErr";
+        RecRef: RecordRef;
     begin
         ErrorRecCount := 0;
 
@@ -68,23 +72,13 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
                             end
                             else begin
                                 ErrorMessageText := GetLastErrorText();
-                                RecMTNA_IF_PurchaseReceiving.Status := RecMTNA_IF_PurchaseReceiving.Status::Error;
-                                RecMTNA_IF_PurchaseReceiving.SetErrormessage('Error occurred when updating Purchase Receiving. The detailed error message is: ' + ErrorMessageText);
-                                RecMTNA_IF_PurchaseReceiving.Modify();
-                                if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Purchase Receiving Process update', RecMTNA_IF_PurchaseReceiving.Plant, Format(RecMTNA_IF_PurchaseReceiving."Entry No."),
-                                    RecMTNA_IF_PurchaseReceiving."Process start datetime", ErrorMessageText) then begin
-                                end;
+                                PurchaseReceivingErrorMessage(RecMTNA_IF_PurchaseReceiving, ErrorMessageText);
                                 ErrorRecCount += 1;
                             end;
                         end
                         else begin
                             ErrorMessageText := GetLastErrorText();
-                            RecMTNA_IF_PurchaseReceiving.Status := RecMTNA_IF_PurchaseReceiving.Status::Error;
-                            RecMTNA_IF_PurchaseReceiving.SetErrormessage('Error occurred when updating Purchase Receiving. The detailed error message is: ' + ErrorMessageText);
-                            RecMTNA_IF_PurchaseReceiving.Modify();
-                            if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Purchase Receiving Process update', RecMTNA_IF_PurchaseReceiving.Plant, Format(RecMTNA_IF_PurchaseReceiving."Entry No."),
-                                RecMTNA_IF_PurchaseReceiving."Process start datetime", ErrorMessageText) then begin
-                            end;
+                            PurchaseReceivingErrorMessage(RecMTNA_IF_PurchaseReceiving, ErrorMessageText);
                             ErrorRecCount += 1;
                         end;
                         RecMTNA_IF_PurchaseReceiving."Processed datetime" := CurrentDateTime;
@@ -195,12 +189,15 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
     local procedure PurchaseReceivingErrorMessage(var RecMTNA_IF_PurchaseReceiving: Record "MTNA_IF_PurchaseReceiving"; ErrorMessageText: Text)
     var
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
+        pagMTNA_IF_PurchaseReceivingErr: Page "MTNA_IF_PurchaseReceivingErr";
+        RecRef: RecordRef;
     begin
         RecMTNA_IF_PurchaseReceiving.Status := RecMTNA_IF_PurchaseReceiving.Status::Error;
         RecMTNA_IF_PurchaseReceiving.SetErrormessage('Error occurred when updating Purchase Receiving. The detailed error message is: ' + ErrorMessageText);
         RecMTNA_IF_PurchaseReceiving.Modify();
+        RecRef.GetTable(RecMTNA_IF_PurchaseReceiving);
         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Purchase Receiving Process update', RecMTNA_IF_PurchaseReceiving.Plant, Format(RecMTNA_IF_PurchaseReceiving."Entry No."),
-            RecMTNA_IF_PurchaseReceiving."Process start datetime", ErrorMessageText) then begin
+            RecMTNA_IF_PurchaseReceiving."Process start datetime", ErrorMessageText, pagMTNA_IF_PurchaseReceivingErr.Caption, pagMTNA_IF_PurchaseReceivingErr.ObjectId(false), RecRef) then begin
         end;
     end;
 

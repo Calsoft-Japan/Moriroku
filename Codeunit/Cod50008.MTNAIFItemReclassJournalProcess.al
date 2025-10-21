@@ -1,6 +1,7 @@
 codeunit 50008 MTNAIFItemReclasJournalProcess
 {
     //CS 2024/9/5 Channing.Zhou FDD307 CodeUnit for MTNA IF Item Reclass Journal Process
+    //CS 2025/10/21 Channing.Zhou FDD300 V7 Change the notification email contents, add error information page url.
 
     var
         CurrentJnlTemplateName: Code[10];
@@ -33,6 +34,8 @@ codeunit 50008 MTNAIFItemReclasJournalProcess
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         RecReservationEntry: Record "Reservation Entry";
         CuItemJnlPost: Codeunit "Item Jnl.-Post";
+        pagMTNA_IF_ItemReclassJournalErr: Page "MTNA_IF_ItemReclassJournalErr";
+        RecRef: RecordRef;
     begin
         ErrorRecCount := 0;
         CurrentJnlTemplateName := 'TRANSFER';
@@ -78,8 +81,9 @@ codeunit 50008 MTNAIFItemReclasJournalProcess
                                 RecReservationEntry.DeleteAll(true);
                             end;
                             RecItemReclassJournalLine.Delete(true);
+                            RecRef.GetTable(RecMTNA_IF_ItemReclassJournal);
                             if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Item Reclass Journal Process Post', RecMTNA_IF_ItemReclassJournal.Plant, Format(RecMTNA_IF_ItemReclassJournal."Entry No."),
-                                RecMTNA_IF_ItemReclassJournal."Process start datetime", ErrorMessageText) then begin
+                                RecMTNA_IF_ItemReclassJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemReclassJournalErr.Caption, pagMTNA_IF_ItemReclassJournalErr.ObjectId(false), RecRef) then begin
                             end;
                             ErrorRecCount += 1;
                         end;
@@ -89,8 +93,9 @@ codeunit 50008 MTNAIFItemReclasJournalProcess
                         RecMTNA_IF_ItemReclassJournal.Status := RecMTNA_IF_ItemReclassJournal.Status::Error;
                         RecMTNA_IF_ItemReclassJournal.SetErrormessage('Error occurred when inserting Item Journal Line. The detailed error message is: ' + ErrorMessageText);
                         RecMTNA_IF_ItemReclassJournal.Modify();
+                        RecRef.GetTable(RecMTNA_IF_ItemReclassJournal);
                         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Item Reclass Journal Process Insert', RecMTNA_IF_ItemReclassJournal.Plant, Format(RecMTNA_IF_ItemReclassJournal."Entry No."),
-                            RecMTNA_IF_ItemReclassJournal."Process start datetime", ErrorMessageText) then begin
+                            RecMTNA_IF_ItemReclassJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemReclassJournalErr.Caption, pagMTNA_IF_ItemReclassJournalErr.ObjectId(false), RecRef) then begin
                         end;
                         ErrorRecCount += 1;
                     end;

@@ -1,6 +1,8 @@
 codeunit 50003 MTNAIFPurchaseOrderProcess
 {
     //CS 2024/9/3 Bobby.Ji FDD302 CodeUnit for MTNA IF Purchase Order Process
+    //CS 2025/10/21 Channing.Zhou FDD300 V7 Change the notification email contents, add error information page url.
+
     trigger OnRun()
     var
         ErrorRecCount: Integer;
@@ -23,83 +25,83 @@ codeunit 50003 MTNAIFPurchaseOrderProcess
     end;
 
     [TryFunction]
-    procedure ProcessPurchaseOrderData(var RecMTNA_IF_POHeader: Record MTNA_IF_POHeaders; var ErrorRecCount: Integer)
+    procedure ProcessPurchaseOrderData(var RecMTNA_IF_POHeaders: Record MTNA_IF_POHeaders; var ErrorRecCount: Integer)
     var
         RecPOHeaderLine: Record "Purchase Header";
         RecPOLines: Record "Purchase Line";
         ErrorMessageText: Text;
-        RecMTNA_IF_POLine: Record MTNA_IF_POLines;
+        RecMTNA_IF_POLines: Record MTNA_IF_POLines;
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         POHeaderNo: Code[20];
         RecItem: Record Item;
         RecItemUom: Record "Item Unit of Measure";
     begin
         ErrorRecCount := 0;
-        if RecMTNA_IF_POHeader.FindFirst() then begin
+        if RecMTNA_IF_POHeaders.FindFirst() then begin
             repeat
-                if RecMTNA_IF_POHeader.Status = RecMTNA_IF_POHeader.Status::Ready then begin
-                    RecMTNA_IF_POHeader."Process start datetime" := CurrentDateTime;
+                if RecMTNA_IF_POHeaders.Status = RecMTNA_IF_POHeaders.Status::Ready then begin
+                    RecMTNA_IF_POHeaders."Process start datetime" := CurrentDateTime;
 
-                    if InsertPurchaseHeader(RecMTNA_IF_POHeader, POHeaderNo) then begin
-                        RecMTNA_IF_POHeader.Status := RecMTNA_IF_POHeader.Status::Completed;
-                        RecMTNA_IF_POHeader.Modify();
+                    if InsertPurchaseHeader(RecMTNA_IF_POHeaders, POHeaderNo) then begin
+                        RecMTNA_IF_POHeaders.Status := RecMTNA_IF_POHeaders.Status::Completed;
+                        RecMTNA_IF_POHeaders.Modify();
 
-                        RecMTNA_IF_POLine.Reset();
-                        RecMTNA_IF_POLine.SetRange("Header Entry No.", RecMTNA_IF_POHeader."Entry No.");
-                        if RecMTNA_IF_POLine.FindFirst() then begin
+                        RecMTNA_IF_POLines.Reset();
+                        RecMTNA_IF_POLines.SetRange("Header Entry No.", RecMTNA_IF_POHeaders."Entry No.");
+                        if RecMTNA_IF_POLines.FindFirst() then begin
                             repeat
-                                if (RecMTNA_IF_POLine.Type = RecMTNA_IF_POLine.Type::Item) then begin
+                                if (RecMTNA_IF_POLines.Type = RecMTNA_IF_POLines.Type::Item) then begin
                                     /*2025/6/3 Channing.Zhou Add logic to check if the Item No existed before checking the Item UOM.*/
                                     RecItem.Reset();
-                                    RecItem.SetRange("No.", RecMTNA_IF_POLine."No.");
+                                    RecItem.SetRange("No.", RecMTNA_IF_POLines."No.");
                                     if RecItem.IsEmpty() then begin
-                                        ErrorMessageText := RecMTNA_IF_POHeader."Order ID" + ' Item No doesn''t exist.';
-                                        POHeaderErrorMessage(RecMTNA_IF_POHeader, ErrorMessageText);
-                                        POLinesErrorMessage(RecMTNA_IF_POLine, ErrorMessageText);
+                                        ErrorMessageText := RecMTNA_IF_POHeaders."Order ID" + ' Item No doesn''t exist.';
+                                        POHeaderErrorMessage(RecMTNA_IF_POHeaders, ErrorMessageText);
+                                        POLinesErrorMessage(RecMTNA_IF_POHeaders, RecMTNA_IF_POLines, ErrorMessageText);
                                         ErrorRecCount += 1;
                                         PORollback(POHeaderNo);
                                         break;
                                     end;
                                     RecItemUom.Reset();
-                                    RecItemUom.SetRange("Item No.", RecMTNA_IF_POLine."No.");
-                                    RecItemUom.SetRange(Code, RecMTNA_IF_POLine."Unit of Measure Code");
+                                    RecItemUom.SetRange("Item No.", RecMTNA_IF_POLines."No.");
+                                    RecItemUom.SetRange(Code, RecMTNA_IF_POLines."Unit of Measure Code");
                                     if RecItemUom.IsEmpty() then begin
-                                        ErrorMessageText := RecMTNA_IF_POHeader."Order ID" + ' Unit of Measure Code no found.';
-                                        POHeaderErrorMessage(RecMTNA_IF_POHeader, ErrorMessageText);
-                                        POLinesErrorMessage(RecMTNA_IF_POLine, ErrorMessageText);
+                                        ErrorMessageText := RecMTNA_IF_POHeaders."Order ID" + ' Unit of Measure Code no found.';
+                                        POHeaderErrorMessage(RecMTNA_IF_POHeaders, ErrorMessageText);
+                                        POLinesErrorMessage(RecMTNA_IF_POHeaders, RecMTNA_IF_POLines, ErrorMessageText);
                                         ErrorRecCount += 1;
                                         PORollback(POHeaderNo);
                                         break;
                                     end;
                                 end;
-                                if InsertPurchaseLine(RecMTNA_IF_POLine, RecMTNA_IF_POHeader, POHeaderNo) then begin
-                                    RecMTNA_IF_POLine.Status := RecMTNA_IF_POLine.Status::Completed;
-                                    RecMTNA_IF_POLine.Modify();
+                                if InsertPurchaseLine(RecMTNA_IF_POLines, RecMTNA_IF_POHeaders, POHeaderNo) then begin
+                                    RecMTNA_IF_POLines.Status := RecMTNA_IF_POLines.Status::Completed;
+                                    RecMTNA_IF_POLines.Modify();
                                 end
                                 else begin
                                     ErrorMessageText := GetLastErrorText();
-                                    POHeaderErrorMessage(RecMTNA_IF_POHeader, ErrorMessageText);
-                                    POLinesErrorMessage(RecMTNA_IF_POLine, ErrorMessageText);
+                                    POHeaderErrorMessage(RecMTNA_IF_POHeaders, ErrorMessageText);
+                                    POLinesErrorMessage(RecMTNA_IF_POHeaders, RecMTNA_IF_POLines, ErrorMessageText);
                                     ErrorRecCount += 1;
                                     PORollback(POHeaderNo);
                                     break;
                                 end;
 
-                                RecMTNA_IF_POLine."Processed datetime" := CurrentDateTime;
-                                RecMTNA_IF_POLine.Modify();
-                            until RecMTNA_IF_POLine.Next() = 0;
+                                RecMTNA_IF_POLines."Processed datetime" := CurrentDateTime;
+                                RecMTNA_IF_POLines.Modify();
+                            until RecMTNA_IF_POLines.Next() = 0;
                         end;
                     end
                     else begin
                         ErrorMessageText := GetLastErrorText();
-                        POHeaderErrorMessage(RecMTNA_IF_POHeader, ErrorMessageText);
+                        POHeaderErrorMessage(RecMTNA_IF_POHeaders, ErrorMessageText);
                         ErrorRecCount += 1;
                         PORollback(POHeaderNo);
                     end;
-                    RecMTNA_IF_POHeader."Processed datetime" := CurrentDateTime;
-                    RecMTNA_IF_POHeader.Modify();
+                    RecMTNA_IF_POHeaders."Processed datetime" := CurrentDateTime;
+                    RecMTNA_IF_POHeaders.Modify();
                 end;
-            until RecMTNA_IF_POHeader.Next() = 0;
+            until RecMTNA_IF_POHeaders.Next() = 0;
         end;
     end;
 
@@ -235,28 +237,34 @@ codeunit 50003 MTNAIFPurchaseOrderProcess
     END;
 
     [TryFunction]
-    local procedure POHeaderErrorMessage(var RecMTNA_IF_POHeader: Record MTNA_IF_POHeaders; ErrorMessageText: Text)
+    local procedure POHeaderErrorMessage(var RecMTNA_IF_POHeaders: Record MTNA_IF_POHeaders; ErrorMessageText: Text)
     var
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
+        pagMTNA_IF_POHeadersErr: Page "MTNA_IF_POHeadersErr";
+        RecRef: RecordRef;
     begin
-        RecMTNA_IF_POHeader.Status := RecMTNA_IF_POHeader.Status::Error;
-        RecMTNA_IF_POHeader.SetErrormessage('Error occurred when inserting Purchase order header. The detailed error message is: ' + ErrorMessageText);
-        RecMTNA_IF_POHeader.Modify();
-        if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF POHeader Process Insert', RecMTNA_IF_POHeader.Plant, Format(RecMTNA_IF_POHeader."Entry No."),
-            RecMTNA_IF_POHeader."Process start datetime", ErrorMessageText) then begin
+        RecMTNA_IF_POHeaders.Status := RecMTNA_IF_POHeaders.Status::Error;
+        RecMTNA_IF_POHeaders.SetErrormessage('Error occurred when inserting Purchase order header. The detailed error message is: ' + ErrorMessageText);
+        RecMTNA_IF_POHeaders.Modify();
+        RecRef.GetTable(RecMTNA_IF_POHeaders);
+        if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF POHeader Process Insert', RecMTNA_IF_POHeaders.Plant, Format(RecMTNA_IF_POHeaders."Entry No."),
+            RecMTNA_IF_POHeaders."Process start datetime", ErrorMessageText, pagMTNA_IF_POHeadersErr.Caption, pagMTNA_IF_POHeadersErr.ObjectId(false), RecRef) then begin
         end;
     end;
 
     [TryFunction]
-    local procedure POLinesErrorMessage(var RecMTNA_IF_POLines: Record MTNA_IF_POLines; ErrorMessageText: Text)
+    local procedure POLinesErrorMessage(var RecMTNA_IF_POHeaders: Record MTNA_IF_POHeaders; var RecMTNA_IF_POLines: Record MTNA_IF_POLines; ErrorMessageText: Text)
     var
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
+        pagMTNA_IF_POHeadersErr: Page "MTNA_IF_POHeadersErr";
+        RecRef: RecordRef;
     begin
         RecMTNA_IF_POLines.Status := RecMTNA_IF_POLines.Status::Error;
         RecMTNA_IF_POLines.SetErrormessage('Error occurred when inserting Purchase order lines. The detailed error message is: ' + ErrorMessageText);
         RecMTNA_IF_POLines.Modify();
+        RecRef.GetTable(RecMTNA_IF_POHeaders);
         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF POHeader Process Insert', RecMTNA_IF_POLines.Plant, Format(RecMTNA_IF_POLines."Entry No."),
-            RecMTNA_IF_POLines."Process start datetime", ErrorMessageText) then begin
+            RecMTNA_IF_POLines."Process start datetime", ErrorMessageText, pagMTNA_IF_POHeadersErr.Caption, pagMTNA_IF_POHeadersErr.ObjectId(false), RecRef) then begin
         end;
     end;
 
