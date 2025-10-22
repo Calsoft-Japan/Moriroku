@@ -66,6 +66,9 @@ report 50000 "Finish multiple production ord"
                         LineError := true;
                         CurErrText := CurErrText + StrSubstNo('%1: ', "No.") + GetLastErrorText() + CR + LF;
                         ErrorText := ErrorText + StrSubstNo('%1: ', "No.") + GetLastErrorText() + CR + LF;
+
+                        ProductionOrder.Blocked := false;//Change Blocked to TRUE if got error while change order status to finished
+                        ProductionOrder.Modify();
                     end;
 
                 // if LineError or (not CHGStatus(ProductionOrder, false)) then begin
