@@ -100,7 +100,7 @@ codeunit 50007 MTNAIFItemJournalProcess
                     RecMTNA_IF_ItemJournal.Modify();
                     Commit();
                 end;
-            until RecMTNA_IF_ItemJournal.Next() = 0
+            until RecMTNA_IF_ItemJournal.Next() = 0;
         end;
     end;
 

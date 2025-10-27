@@ -103,7 +103,7 @@ page 50034 MTNA_IF_StandardCostErr
                     RecSelectedStandardCost.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedStandardCost);
                     if (RecSelectedStandardCost.IsEmpty() = false) And (RecSelectedStandardCost.FindFirst()) then begin
-                        RecSelectedStandardCost.SetFilter(Status, '<> %1', RecSelectedStandardCost.Status::Completed);
+                        RecSelectedStandardCost.SetFilter(Status, '<> %1', RecSelectedStandardCost.Status::Error);
                         if (RecSelectedStandardCost.FindFirst()) then begin
                             Message('Please only select the records with ''' + Format(RecSelectedStandardCost.Status::Error) + ''' status.');
                             exit;

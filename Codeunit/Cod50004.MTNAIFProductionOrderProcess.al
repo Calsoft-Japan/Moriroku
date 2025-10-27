@@ -80,7 +80,7 @@ codeunit 50004 MTNAIFProductionOrderProcess
                     RecMTNA_IF_ProductionOrder."Processed datetime" := CurrentDateTime;
                     RecMTNA_IF_ProductionOrder.Modify();
                 end;
-            until RecMTNA_IF_ProductionOrder.Next() = 0
+            until RecMTNA_IF_ProductionOrder.Next() = 0;
         end;
     end;
 

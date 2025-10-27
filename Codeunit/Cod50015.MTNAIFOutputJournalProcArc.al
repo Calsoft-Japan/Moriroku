@@ -34,7 +34,7 @@ codeunit 50015 MTNAIFOutputJournalProcArc
             repeat
                 RecMTNA_IF_OutputJournalArchive.Init();
                 RecMTNA_IF_OutputJournalArchive.TransferFields(RecMTNA_IF_OutputJournal);
-                RecMTNA_IF_OutputJournalArchive.Insert();
+                RecMTNA_IF_OutputJournalArchive.Insert(true);
             until RecMTNA_IF_OutputJournal.Next() = 0;
             RecMTNA_IF_OutputJournal.DeleteAll();
         end;

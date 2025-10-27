@@ -45,14 +45,31 @@ table 50015 MTNA_IF_StandardCostArchive
         {
             Caption = 'Error message';
         }
+        field(11; "Archive Entry No."; Integer)
+        {
+            Caption = 'Archive Entry No.';
+        }
     }
     keys
     {
-        key(PK; "Entry No.")
+        key(PK; "Archive Entry No.")
         {
             Clustered = true;
         }
     }
+
+    trigger OnInsert()
+    var
+        RecMTNAIFStandardJournalArchive: Record "MTNA_IF_StandardCostArchive";
+        LastArchiveEntryNo_: integer;
+    begin
+        LastArchiveEntryNo_ := 0;
+        if RecMTNAIFStandardJournalArchive.FindLast() then begin
+            LastArchiveEntryNo_ := RecMTNAIFStandardJournalArchive."Archive Entry No.";
+        end;
+        LastArchiveEntryNo_ += 1;
+        Rec."Archive Entry No." := LastArchiveEntryNo_;
+    end;
 
     procedure SetErrormessage(NewErrormessage: Text)
     var

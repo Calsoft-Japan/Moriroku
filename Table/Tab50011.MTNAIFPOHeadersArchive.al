@@ -77,6 +77,11 @@ table 50011 MTNA_IF_POHeadersArchive
         {
             Caption = 'Error message';
         }
+        field(19; "Archive Entry No."; Integer)
+        {
+            Caption = 'Archive Entry No.';
+            //AutoIncrement = true;
+        }
     }
     keys
     {

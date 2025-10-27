@@ -138,7 +138,7 @@ page 50028 MTNA_IF_ProductionOrderErr
                     RecSelectedProductionOrder.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
                     if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
-                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Completed);
+                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Error);
                         if (RecSelectedProductionOrder.FindFirst()) then begin
                             Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::Error) + ''' status.');
                             exit;

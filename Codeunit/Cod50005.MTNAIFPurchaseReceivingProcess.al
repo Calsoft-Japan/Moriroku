@@ -85,7 +85,7 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
                         RecMTNA_IF_PurchaseReceiving.Modify();
                     end;
                 end;
-            until RecMTNA_IF_PurchaseReceiving.Next() = 0
+            until RecMTNA_IF_PurchaseReceiving.Next() = 0;
         end;
     end;
 

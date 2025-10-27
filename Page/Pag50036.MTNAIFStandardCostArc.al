@@ -101,7 +101,7 @@ page 50036 MTNA_IF_StandardCostArc
                     if (RecSelectedStandardCostArchive.IsEmpty() = false) And (RecSelectedStandardCostArchive.FindFirst()) then begin
                         RecSelectedStandardCostArchive.SetFilter(Status, '<> %1', RecSelectedStandardCostArchive.Status::Completed);
                         if (RecSelectedStandardCostArchive.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedStandardCostArchive.Status::Error) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedStandardCostArchive.Status::Completed) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin

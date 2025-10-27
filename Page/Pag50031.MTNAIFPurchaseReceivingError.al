@@ -128,7 +128,7 @@ page 50031 MTNA_IF_PurchaseReceivingErr
                     RecSelectedPurchaseReceiving.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
                     if (RecSelectedPurchaseReceiving.IsEmpty() = false) And (RecSelectedPurchaseReceiving.FindFirst()) then begin
-                        RecSelectedPurchaseReceiving.SetFilter(Status, '<> %1', RecSelectedPurchaseReceiving.Status::Completed);
+                        RecSelectedPurchaseReceiving.SetFilter(Status, '<> %1', RecSelectedPurchaseReceiving.Status::Error);
                         if (RecSelectedPurchaseReceiving.FindFirst()) then begin
                             Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceiving.Status::Error) + ''' status.');
                             exit;

@@ -152,7 +152,7 @@ page 50042 MTNA_IF_ItemReclassJournalArc
                     if (RecSelectedItemReclassJournalArchive.IsEmpty() = false) And (RecSelectedItemReclassJournalArchive.FindFirst()) then begin
                         RecSelectedItemReclassJournalArchive.SetFilter(Status, '<> %1', RecSelectedItemReclassJournalArchive.Status::Completed);
                         if (RecSelectedItemReclassJournalArchive.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedItemReclassJournalArchive.Status::Error) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedItemReclassJournalArchive.Status::Completed) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin

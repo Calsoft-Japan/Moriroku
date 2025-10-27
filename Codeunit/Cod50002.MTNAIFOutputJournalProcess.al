@@ -31,10 +31,21 @@ codeunit 50002 MTNAIFOutputJournalProcess
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         pagMTNA_IF_OutputJournalErr: Page "MTNA_IF_OutputJournalErr";
         RecRef: RecordRef;
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        proccessedCount: Integer;
+        maxProcCount: Integer;
     begin
         ErrorRecCount := 0;
+        proccessedCount := 0;
+        maxProcCount := 0;
+        RecMTNAIFConfiguration.Reset();
+        RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Output journal");
+        if RecMTNAIFConfiguration.FindFirst() then begin
+            maxProcCount := RecMTNAIFConfiguration."Max. records to process";
+        end;
         if RecMTNA_IF_OutputJournal.FindFirst() then begin
             repeat
+                proccessedCount += 1;
                 if RecMTNA_IF_OutputJournal.Status = RecMTNA_IF_OutputJournal.Status::Ready then begin
                     RecMTNA_IF_OutputJournal."Process start datetime" := CurrentDateTime;
                     RecOutputJournalLine.Reset();
@@ -83,7 +94,15 @@ codeunit 50002 MTNAIFOutputJournalProcess
                     RecMTNA_IF_OutputJournal.Modify();
                     Commit();
                 end;
-            until RecMTNA_IF_OutputJournal.Next() = 0
+                if ((maxProcCount > 0) and (maxProcCount <= proccessedCount)) then begin
+                    break;
+                end;
+            until (RecMTNA_IF_OutputJournal.Next() = 0);
+
+            if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Output Journal Process Post', RecMTNA_IF_OutputJournal.Plant, Format(RecMTNA_IF_OutputJournal."Entry No."),
+                                            RecMTNA_IF_OutputJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_OutputJournalErr.Caption, pagMTNA_IF_OutputJournalErr.ObjectId(false), RecRef) then begin
+
+            end;
         end;
     end;
 

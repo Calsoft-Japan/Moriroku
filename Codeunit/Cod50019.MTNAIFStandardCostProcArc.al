@@ -34,7 +34,7 @@ codeunit 50019 MTNAIFStandardCostProcArc
             repeat
                 RecMTNA_IF_StandardCostArchive.Init();
                 RecMTNA_IF_StandardCostArchive.TransferFields(RecMTNA_IF_StandardCost);
-                RecMTNA_IF_StandardCostArchive.Insert();
+                RecMTNA_IF_StandardCostArchive.Insert(true);
             until RecMTNA_IF_StandardCost.Next() = 0;
             RecMTNA_IF_StandardCost.DeleteAll();
         end;

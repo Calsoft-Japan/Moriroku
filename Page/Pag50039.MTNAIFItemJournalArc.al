@@ -145,9 +145,9 @@ page 50039 MTNA_IF_ItemJournalArc
                     RecSelectedItemJournal.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedItemJournal);
                     if (RecSelectedItemJournal.IsEmpty() = false) And (RecSelectedItemJournal.FindFirst()) then begin
-                        RecSelectedItemJournal.SetFilter(Status, '<> %1', RecSelectedItemJournal.Status::Ready);
+                        RecSelectedItemJournal.SetFilter(Status, '<> %1', RecSelectedItemJournal.Status::Completed);
                         if (RecSelectedItemJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedItemJournal.Status::Ready) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedItemJournal.Status::Completed) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin

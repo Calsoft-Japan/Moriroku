@@ -65,14 +65,31 @@ table 50014 MTNA_IF_PurchaseReceivingArc
         {
             Caption = 'Error message';
         }
+        field(16; "Archive Entry No."; Integer)
+        {
+            Caption = 'Archive Entry No.';
+        }
     }
     keys
     {
-        key(PK; "Entry No.")
+        key(PK; "Archive Entry No.")
         {
             Clustered = true;
         }
     }
+
+    trigger OnInsert()
+    var
+        RecMTNAIFPurchaseReceivingArchive: Record "MTNA_IF_PurchaseReceivingArc";
+        LastArchiveEntryNo_: integer;
+    begin
+        LastArchiveEntryNo_ := 0;
+        if RecMTNAIFPurchaseReceivingArchive.FindLast() then begin
+            LastArchiveEntryNo_ := RecMTNAIFPurchaseReceivingArchive."Archive Entry No.";
+        end;
+        LastArchiveEntryNo_ += 1;
+        Rec."Archive Entry No." := LastArchiveEntryNo_;
+    end;
 
     procedure SetErrormessage(NewErrormessage: Text)
     var

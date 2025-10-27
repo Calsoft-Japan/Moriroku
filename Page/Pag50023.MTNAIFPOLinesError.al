@@ -5,9 +5,9 @@ page 50023 "MTNA_IF_POLinesErr"
     Caption = 'MTNA IF Purchase Order Lines Error';
     PageType = List;
     SourceTable = MTNA_IF_POLines;
-    SourceTableView = where("Status" = const("MTNA IF Status"::Error));
+    //SourceTableView = where("Status" = const("MTNA IF Status"::Error));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = true;
 
@@ -40,52 +40,52 @@ page 50023 "MTNA_IF_POLinesErr"
                 field(LineNo; Rec."Line No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = pageEditable;
                 }
                 field(Type; Rec.Type)
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = pageEditable;
                 }
                 field(No; Rec."No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = pageEditable;
                 }
                 field(Description; Rec."Description")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = pageEditable;
                 }
                 field(Quantity; Rec."Quantity")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = pageEditable;
                 }
                 field(UnitPrice; Rec."Unit Price")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = pageEditable;
                 }
                 field(UnitofMeasureCode; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = pageEditable;
                 }
                 field(ShortcutDimension1Code; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = pageEditable;
                 }
                 field(ShortcutDimension2Code; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = pageEditable;
                 }
                 field(LocationCode; Rec."Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = pageEditable;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {
@@ -109,6 +109,41 @@ page 50023 "MTNA_IF_POLinesErr"
                     //MultiLine = true;
                     Editable = false;
                 }
+            }
+        }
+    }
+    actions
+    {
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Delete Process"; Delete)
+                {
+                }
+            }
+        }
+
+        area(Processing)
+        {
+            action("Delete")
+            {
+                ApplicationArea = All;
+                Image = Delete;
+
+                trigger OnAction()
+                var
+                    RecSelectedPOLines: Record MTNA_IF_POLines;
+                begin
+                    RecSelectedPOLines.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedPOLines);
+                    if (RecSelectedPOLines.IsEmpty() = false) And (RecSelectedPOLines.FindFirst()) and (Confirm('Go ahead and delete?') = true) then begin
+                        RecSelectedPOLines.DeleteAll();
+                        Message('Deleted successfuly.');
+                    end;
+                end;
             }
         }
     }

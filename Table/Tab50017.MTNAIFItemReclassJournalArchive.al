@@ -85,10 +85,14 @@ table 50017 MTNA_IF_ItemReclassJournalArc
         {
             Caption = 'Error message';
         }
+        field(21; "Archive Entry No."; Integer)
+        {
+            Caption = 'Archive Entry No.';
+        }
     }
     keys
     {
-        key(PK; "Entry No.")
+        key(PK; "Archive Entry No.")
         {
             Clustered = true;
         }
@@ -96,15 +100,15 @@ table 50017 MTNA_IF_ItemReclassJournalArc
 
     trigger OnInsert()
     var
-        RecMNTAIFItemReclassJournal: Record "MTNA_IF_ItemReclassJournal";
-        LastEntryNo_: integer;
+        RecMTNAIFItemReclassJournalArchive: Record "MTNA_IF_ItemReclassJournalArc";
+        LastArchiveEntryNo_: integer;
     begin
-        LastEntryNo_ := 0;
-        if RecMNTAIFItemReclassJournal.FindLast() then begin
-            LastEntryNo_ := RecMNTAIFItemReclassJournal."Entry No.";
+        LastArchiveEntryNo_ := 0;
+        if RecMTNAIFItemReclassJournalArchive.FindLast() then begin
+            LastArchiveEntryNo_ := RecMTNAIFItemReclassJournalArchive."Archive Entry No.";
         end;
-        LastEntryNo_ += 1;
-        Rec."Entry No." := LastEntryNo_;
+        LastArchiveEntryNo_ += 1;
+        Rec."Archive Entry No." := LastArchiveEntryNo_;
     end;
 
     procedure SetErrormessage(NewErrormessage: Text)

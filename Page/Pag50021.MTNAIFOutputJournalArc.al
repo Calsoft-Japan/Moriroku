@@ -158,7 +158,7 @@ page 50021 MTNA_IF_OutputJournalArc
                     if (RecSelectedOutputJournalArchive.IsEmpty() = false) And (RecSelectedOutputJournalArchive.FindFirst()) then begin
                         RecSelectedOutputJournalArchive.SetFilter(Status, '<> %1', RecSelectedOutputJournalArchive.Status::Completed);
                         if (RecSelectedOutputJournalArchive.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedOutputJournalArchive.Status::Error) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedOutputJournalArchive.Status::Completed) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin

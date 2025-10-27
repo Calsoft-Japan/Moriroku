@@ -73,14 +73,31 @@ table 50013 MTNA_IF_ProductionOrderArchive
         {
             Caption = 'Error message';
         }
+        field(22; "Archive Entry No."; Integer)
+        {
+            Caption = 'Archive Entry No.';
+        }
     }
     keys
     {
-        key(PK; "Entry No.")
+        key(PK; "Archive Entry No.")
         {
             Clustered = true;
         }
     }
+
+    trigger OnInsert()
+    var
+        RecMTNAIFProductionOrderArchive: Record "MTNA_IF_ProductionOrderArchive";
+        LastArchiveEntryNo_: integer;
+    begin
+        LastArchiveEntryNo_ := 0;
+        if RecMTNAIFProductionOrderArchive.FindLast() then begin
+            LastArchiveEntryNo_ := RecMTNAIFProductionOrderArchive."Archive Entry No.";
+        end;
+        LastArchiveEntryNo_ += 1;
+        Rec."Archive Entry No." := LastArchiveEntryNo_;
+    end;
 
     procedure SetErrormessage(NewErrormessage: Text)
     var

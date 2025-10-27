@@ -138,7 +138,7 @@ page 50030 MTNA_IF_ProductionOrderArc
                     if (RecSelectedProductionOrderArchive.IsEmpty() = false) And (RecSelectedProductionOrderArchive.FindFirst()) then begin
                         RecSelectedProductionOrderArchive.SetFilter(Status, '<> %1', RecSelectedProductionOrderArchive.Status::Completed);
                         if (RecSelectedProductionOrderArchive.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrderArchive.Status::Error) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrderArchive.Status::Completed) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin

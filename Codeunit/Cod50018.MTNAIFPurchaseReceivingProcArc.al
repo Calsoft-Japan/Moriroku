@@ -34,7 +34,7 @@ codeunit 50018 MTNAIFPurchaseReceivingProcArc
             repeat
                 RecMTNA_IF_PurchaseReceivingArchive.Init();
                 RecMTNA_IF_PurchaseReceivingArchive.TransferFields(RecMTNA_IF_PurchaseReceiving);
-                RecMTNA_IF_PurchaseReceivingArchive.Insert();
+                RecMTNA_IF_PurchaseReceivingArchive.Insert(true);
             until RecMTNA_IF_PurchaseReceiving.Next() = 0;
             RecMTNA_IF_PurchaseReceiving.DeleteAll();
         end;

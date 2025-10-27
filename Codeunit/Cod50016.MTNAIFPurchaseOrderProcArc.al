@@ -36,7 +36,7 @@ codeunit 50016 MTNAIFPurchaseOrderProcArc
             repeat
                 RecMTNA_IF_POHeaderArchive.Init();
                 RecMTNA_IF_POHeaderArchive.TransferFields(RecMTNA_IF_POHeader);
-                RecMTNA_IF_POHeaderArchive.Insert();
+                RecMTNA_IF_POHeaderArchive.Insert(true);
 
                 RecMTNA_IF_POLine.Reset();
                 RecMTNA_IF_POLine.SetRange("Header Entry No.", RecMTNA_IF_POHeader."Entry No.");
@@ -44,7 +44,8 @@ codeunit 50016 MTNAIFPurchaseOrderProcArc
                     repeat
                         RecMTNA_IF_POLineArchive.Init();
                         RecMTNA_IF_POLineArchive.TransferFields(RecMTNA_IF_POLine);
-                        RecMTNA_IF_POLineArchive.Insert();
+                        RecMTNA_IF_POLineArchive."Header Archive Entry No." := RecMTNA_IF_POHeaderArchive."Archive Entry No.";
+                        RecMTNA_IF_POLineArchive.Insert(true);
                     until RecMTNA_IF_POLine.Next() = 0;
                     RecMTNA_IF_POLine.DeleteAll();
                 end;

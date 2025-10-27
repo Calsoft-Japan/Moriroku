@@ -34,7 +34,7 @@ codeunit 50017 MTNAIFProductionOrderProcArc
             repeat
                 RecMTNA_IF_ProductionOrderArchive.Init();
                 RecMTNA_IF_ProductionOrderArchive.TransferFields(RecMTNA_IF_ProductionOrder);
-                RecMTNA_IF_ProductionOrderArchive.Insert();
+                RecMTNA_IF_ProductionOrderArchive.Insert(true);
             until RecMTNA_IF_ProductionOrder.Next() = 0;
             RecMTNA_IF_ProductionOrder.DeleteAll();
         end;

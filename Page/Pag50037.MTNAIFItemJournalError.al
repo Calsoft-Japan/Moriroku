@@ -35,62 +35,62 @@ page 50037 MTNA_IF_ItemJournalErr
                 field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Posting date"; Rec."Posting date")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Primary record ID"; Rec."Primary record ID")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Quantity"; Rec."Quantity")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Gen Bus Posting Group"; Rec."Gen Bus Posting Group")
                 {
                     ApplicationArea = All;
-                    Editable = Rec.Status = Rec.Status::New;
+                    Editable = Rec.Status = Rec.Status::Error;
                 }
                 field("Created datetime"; Rec."Created datetime")
                 {
@@ -149,7 +149,7 @@ page 50037 MTNA_IF_ItemJournalErr
                     RecSelectedItemJournal.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedItemJournal);
                     if (RecSelectedItemJournal.IsEmpty() = false) And (RecSelectedItemJournal.FindFirst()) then begin
-                        RecSelectedItemJournal.SetFilter(Status, '<> %1', RecSelectedItemJournal.Status::Completed);
+                        RecSelectedItemJournal.SetFilter(Status, '<> %1', RecSelectedItemJournal.Status::Error);
                         if (RecSelectedItemJournal.FindFirst()) then begin
                             Message('Please only select the records with ''' + Format(RecSelectedItemJournal.Status::Error) + ''' status.');
                             exit;

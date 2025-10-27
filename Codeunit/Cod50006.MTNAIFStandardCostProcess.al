@@ -70,7 +70,7 @@ codeunit 50006 MTNAIFStandardCostProcess
                     RecMTNA_IF_StandardCost."Processed datetime" := CurrentDateTime;
                     RecMTNA_IF_StandardCost.Modify();
                 end;
-            until RecMTNA_IF_StandardCost.Next() = 0
+            until RecMTNA_IF_StandardCost.Next() = 0;
         end;
     end;
 

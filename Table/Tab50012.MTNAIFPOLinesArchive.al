@@ -82,14 +82,37 @@ table 50012 MTNA_IF_POLinesArchive
         {
             Caption = 'Error message';
         }
+        field(20; "Archive Entry No."; Integer)
+        {
+            Caption = 'Archive Entry No.';
+            //AutoIncrement = true;
+        }
+        field(21; "Header Archive Entry No."; Integer)
+        {
+            Caption = 'Header Entry No.';
+            TableRelation = MTNA_IF_POHeadersArchive."Archive Entry No.";
+        }
     }
     keys
     {
-        key(PK; "Entry No.", "Header Entry No.")
+        key(PK; "Archive Entry No.", "Header Archive Entry No.")
         {
             Clustered = true;
         }
     }
+
+    trigger OnInsert()
+    var
+        RecMTNAIFPOLinesArchive: Record "MTNA_IF_POLinesArchive";
+        LastEArchiventryNo_: integer;
+    begin
+        LastEArchiventryNo_ := 0;
+        if RecMTNAIFPOLinesArchive.FindLast() then begin
+            LastEArchiventryNo_ := RecMTNAIFPOLinesArchive."Archive Entry No.";
+        end;
+        LastEArchiventryNo_ += 1;
+        Rec."Archive Entry No." := LastEArchiventryNo_;
+    end;
 
     procedure SetErrormessage(NewErrormessage: Text)
     var

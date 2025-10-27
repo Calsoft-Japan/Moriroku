@@ -127,7 +127,7 @@ page 50033 MTNA_IF_PurchaseReceivingArc
                     if (RecSelectedPurchaseReceivingArchive.IsEmpty() = false) And (RecSelectedPurchaseReceivingArchive.FindFirst()) then begin
                         RecSelectedPurchaseReceivingArchive.SetFilter(Status, '<> %1', RecSelectedPurchaseReceivingArchive.Status::Completed);
                         if (RecSelectedPurchaseReceivingArchive.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceivingArchive.Status::Error) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceivingArchive.Status::Completed) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin

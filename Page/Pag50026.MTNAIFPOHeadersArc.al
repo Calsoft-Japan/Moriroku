@@ -30,7 +30,7 @@ page 50026 MTNA_IF_POHeadersArc
                     begin
                         if Rec.IsEmpty() = false then begin
                             RecMTNAIFPOlinesArchive.Reset();
-                            RecMTNAIFPOlinesArchive.SetRange("Header Entry No.", Rec."Entry No.");
+                            RecMTNAIFPOlinesArchive.SetRange("Header Archive Entry No.", Rec."Archive Entry No.");
                             if RecMTNAIFPOlinesArchive.FindFirst() then begin
                                 PagMTNAIFPOLinesArc.SetPageEditable(false);
                                 PagMTNAIFPOLinesArc.SetTableView(RecMTNAIFPOlinesArchive);
@@ -162,7 +162,7 @@ page 50026 MTNA_IF_POHeadersArc
                     if (RecSelectedPOHeaderArchive.IsEmpty() = false) And (RecSelectedPOHeaderArchive.FindFirst()) then begin
                         RecSelectedPOHeaderArchive.SetFilter(Status, '<> %1', RecSelectedPOHeaderArchive.Status::Completed);
                         if (RecSelectedPOHeaderArchive.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedPOHeaderArchive.Status::Error) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedPOHeaderArchive.Status::Completed) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin
@@ -170,7 +170,7 @@ page 50026 MTNA_IF_POHeadersArc
                             CurrPage.SetSelectionFilter(RecSelectedPOHeaderArchive);
                             if RecSelectedPOHeaderArchive.FindFirst() then begin
                                 RecMTNA_IF_POLinesArchive.Reset();
-                                RecMTNA_IF_POLinesArchive.SetRange("Header Entry No.", Rec."Entry No.");
+                                RecMTNA_IF_POLinesArchive.SetRange("Header Archive Entry No.", Rec."Archive Entry No.");
                                 if RecMTNA_IF_POLinesArchive.FindFirst() then begin
                                     RecMTNA_IF_POLinesArchive.DeleteAll();
                                 end;
@@ -179,6 +179,24 @@ page 50026 MTNA_IF_POHeadersArc
                             end;
                         end;
                     end;
+                    /*RecSelectedPOHeaderArchive.Reset();
+                    if not RecSelectedPOHeaderArchive.IsEmpty() then begin
+                        RecSelectedPOHeaderArchive.FindSet();
+                        repeat
+                            RecSelectedPOHeaderArchive."Archive Entry No." := RecSelectedPOHeaderArchive."Entry No.";
+                            RecSelectedPOHeaderArchive.Modify();
+                            RecMTNA_IF_POLinesArchive.Reset();
+                            RecMTNA_IF_POLinesArchive.SetRange("Header Entry No.", RecSelectedPOHeaderArchive."Entry No.");
+                            if not RecMTNA_IF_POLinesArchive.IsEmpty() then begin
+                                RecMTNA_IF_POLinesArchive.FindSet();
+                                repeat
+                                    RecMTNA_IF_POLinesArchive."Archive Entry No." := RecMTNA_IF_POLinesArchive."Entry No.";
+                                    RecMTNA_IF_POLinesArchive."Header Archive Entry No." := RecSelectedPOHeaderArchive."Archive Entry No.";
+                                    RecMTNA_IF_POLinesArchive.Modify();
+                                until RecMTNA_IF_POLinesArchive.Next() = 0;
+                            end;
+                        until RecSelectedPOHeaderArchive.Next() = 0;
+                    end;*/
                 end;
             }
         }

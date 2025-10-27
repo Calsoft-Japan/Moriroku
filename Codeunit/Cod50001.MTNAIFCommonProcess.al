@@ -56,7 +56,9 @@ codeunit 50001 MTNA_IF_CommonProcess
         chr10: char;
         chr13: char;
         dateStr: text;
+        pageUrl: text;
     begin
+        pageUrl := GetPageUrl(PageId, RecRef);
         RecMTNAIFEmailNotification.Reset();
         RecMTNAIFEmailNotification.SetRange(Plant, Plant);
         if RecMTNAIFEmailNotification.FindFirst() then begin
@@ -79,8 +81,7 @@ codeunit 50001 MTNA_IF_CommonProcess
             body += '<p>Error Description: ' + Errormessage + '</p>';
             body += '<p>Next Steps:</p>' +
                     '<p>Please review the related page for further details and corrective actions.</p>' +
-                    '<p><a href="' + GetPageUrl(PageId, RecRef) + '" target="_blank">' + PageCaption + '</a></p>';
-
+                    '<p><a href="' + pageUrl + '" target="_blank">' + PageCaption + '</a></p>';
             isSent := SeendEmail(RecMTNAIFEmailNotification."E-Mail", '', subject, body);
         end;
     end;
@@ -91,7 +92,7 @@ codeunit 50001 MTNA_IF_CommonProcess
         RecMN: Record MTNA_IF_ItemJournal;
         RealPageId: Integer;
     begin
-        if Evaluate(RealPageId, PageId) then begin
+        if GetPageId(PageId, RealPageId) then begin
             Url := System.GetUrl(
                 ClientType::Current,            // Use current client (Web) context
                 CompanyName(),                  // Company name (exact display name)
@@ -106,6 +107,24 @@ codeunit 50001 MTNA_IF_CommonProcess
             exit('');
         end;
     end;
+
+    local procedure GetPageId(ObjTxt: Text; var PageId: Integer): Boolean
+    var
+        SpacePos: Integer;
+        NumTxt: Text;
+    begin
+        SpacePos := StrPos(ObjTxt, ' ');
+        if SpacePos = 0 then begin
+            exit(false);
+        end;
+        NumTxt := CopyStr(ObjTxt, SpacePos + 1);   // everything after first space
+        NumTxt := NumTxt.Trim();
+        if not Evaluate(PageId, NumTxt) then begin
+            exit(false);
+        end;
+        exit(true);
+    end;
+
 
 
     [TryFunction]

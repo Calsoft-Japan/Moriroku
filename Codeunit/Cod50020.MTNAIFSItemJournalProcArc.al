@@ -34,7 +34,7 @@ codeunit 50020 MTNAIFItemJournalProcArc
             repeat
                 RecMTNA_IF_ItemJournalrArchive.Init();
                 RecMTNA_IF_ItemJournalrArchive.TransferFields(RecMTNA_IF_ItemJournal);
-                RecMTNA_IF_ItemJournalrArchive.Insert();
+                RecMTNA_IF_ItemJournalrArchive.Insert(true);
             until RecMTNA_IF_ItemJournal.Next() = 0;
             RecMTNA_IF_ItemJournal.DeleteAll();
         end;

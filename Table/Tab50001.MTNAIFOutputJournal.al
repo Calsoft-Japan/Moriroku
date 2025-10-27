@@ -100,12 +100,12 @@ table 50001 MTNA_IF_OutputJournal
 
     trigger OnInsert()
     var
-        RecMNTAIFOutputJournal: Record "MTNA_IF_OutputJournal";
+        RecMTNAIFOutputJournal: Record "MTNA_IF_OutputJournal";
         LastEntryNo_: integer;
     begin
         LastEntryNo_ := 0;
-        if RecMNTAIFOutputJournal.FindLast() then begin
-            LastEntryNo_ := RecMNTAIFOutputJournal."Entry No.";
+        if RecMTNAIFOutputJournal.FindLast() then begin
+            LastEntryNo_ := RecMTNAIFOutputJournal."Entry No.";
         end;
         LastEntryNo_ += 1;
         Rec."Entry No." := LastEntryNo_;
