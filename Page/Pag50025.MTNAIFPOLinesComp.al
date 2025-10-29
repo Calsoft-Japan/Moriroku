@@ -6,7 +6,7 @@ page 50025 "MTNA_IF_POLinesComp"
     PageType = List;
     SourceTable = MTNA_IF_POLines;
     SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
-    UsageCategory = Administration;
+    //UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;

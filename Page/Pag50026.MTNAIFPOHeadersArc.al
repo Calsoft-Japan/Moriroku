@@ -2,7 +2,7 @@ page 50026 MTNA_IF_POHeadersArc
 {
     //CS 2025/10/11 Channing.Zhou FDD302 Page for MTNA IF PO Header Archive
     ApplicationArea = All;
-    Caption = 'MTNA IF Purchase Orders Arcive';
+    Caption = 'MTNA IF Purchase Orders Archive';
     PageType = List;
     SourceTable = MTNA_IF_POHeadersArchive;
     SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
@@ -179,24 +179,6 @@ page 50026 MTNA_IF_POHeadersArc
                             end;
                         end;
                     end;
-                    /*RecSelectedPOHeaderArchive.Reset();
-                    if not RecSelectedPOHeaderArchive.IsEmpty() then begin
-                        RecSelectedPOHeaderArchive.FindSet();
-                        repeat
-                            RecSelectedPOHeaderArchive."Archive Entry No." := RecSelectedPOHeaderArchive."Entry No.";
-                            RecSelectedPOHeaderArchive.Modify();
-                            RecMTNA_IF_POLinesArchive.Reset();
-                            RecMTNA_IF_POLinesArchive.SetRange("Header Entry No.", RecSelectedPOHeaderArchive."Entry No.");
-                            if not RecMTNA_IF_POLinesArchive.IsEmpty() then begin
-                                RecMTNA_IF_POLinesArchive.FindSet();
-                                repeat
-                                    RecMTNA_IF_POLinesArchive."Archive Entry No." := RecMTNA_IF_POLinesArchive."Entry No.";
-                                    RecMTNA_IF_POLinesArchive."Header Archive Entry No." := RecSelectedPOHeaderArchive."Archive Entry No.";
-                                    RecMTNA_IF_POLinesArchive.Modify();
-                                until RecMTNA_IF_POLinesArchive.Next() = 0;
-                            end;
-                        until RecSelectedPOHeaderArchive.Next() = 0;
-                    end;*/
                 end;
             }
         }

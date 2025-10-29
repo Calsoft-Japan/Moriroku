@@ -6,7 +6,7 @@ page 50027 "MTNA_IF_POLinesArc"
     PageType = List;
     SourceTable = MTNA_IF_POLinesArchive;
     SourceTableView = where("Status" = const("MTNA IF Status"::Completed));
-    UsageCategory = Administration;
+    //UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = false;

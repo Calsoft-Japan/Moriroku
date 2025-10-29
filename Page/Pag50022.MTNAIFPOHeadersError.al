@@ -186,21 +186,6 @@ page 50022 MTNA_IF_POHeadersErr
                             end;
                         end;
                     end;
-                    /*RecSelectedPOHeader.Reset();
-                    if not RecSelectedPOHeader.IsEmpty() then begin
-                        RecSelectedPOHeader.FindSet();
-                        repeat
-                            RecMTNA_IF_POLines.Reset();
-                            RecMTNA_IF_POLines.SetRange("Header Entry No.", RecSelectedPOHeader."Entry No.");
-                            if not RecMTNA_IF_POLines.IsEmpty() then begin
-                                RecMTNA_IF_POLines.FindSet();
-                                repeat
-                                    RecMTNA_IF_POLines.Status := RecSelectedPOHeader.Status;
-                                    RecMTNA_IF_POLines.Modify();
-                                until RecMTNA_IF_POLines.Next() = 0;
-                            end;
-                        until RecSelectedPOHeader.Next() = 0;
-                    end;*/
                 end;
             }
 

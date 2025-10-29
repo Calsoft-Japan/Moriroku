@@ -85,11 +85,24 @@ table 50011 MTNA_IF_POHeadersArchive
     }
     keys
     {
-        key(PK; "Entry No.")
+        key(PK; "Archive Entry No.")
         {
             Clustered = true;
         }
     }
+
+    trigger OnInsert()
+    var
+        RecMTNAIFPOHeadersArchive: Record MTNA_IF_POHeadersArchive;
+        LastEArchiventryNo_: integer;
+    begin
+        LastEArchiventryNo_ := 0;
+        if RecMTNAIFPOHeadersArchive.FindLast() then begin
+            LastEArchiventryNo_ := RecMTNAIFPOHeadersArchive."Archive Entry No.";
+        end;
+        LastEArchiventryNo_ += 1;
+        Rec."Archive Entry No." := LastEArchiventryNo_;
+    end;
 
     procedure SetErrormessage(NewErrormessage: Text)
     var

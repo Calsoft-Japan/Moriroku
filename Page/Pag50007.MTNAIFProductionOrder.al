@@ -8,7 +8,7 @@ page 50007 MTNA_IF_ProductionOrder
     SourceTable = MTNA_IF_ProductionOrder;
     SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = true;
 

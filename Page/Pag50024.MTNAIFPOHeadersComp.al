@@ -2,7 +2,7 @@ page 50024 MTNA_IF_POHeadersComp
 {
     //CS 2025/10/11 Channing.Zhou FDD302 Page for MTNA IF PO Header Completed
     ApplicationArea = All;
-    Caption = 'MTNA IF Purchase Orders Copmpleted';
+    Caption = 'MTNA IF Purchase Orders Completed';
     PageType = List;
     SourceTable = MTNA_IF_POHeaders;
     SourceTableView = where("Status" = const("MTNA IF Status"::Completed));

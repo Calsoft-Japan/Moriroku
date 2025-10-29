@@ -6,7 +6,7 @@ page 50023 "MTNA_IF_POLinesErr"
     PageType = List;
     SourceTable = MTNA_IF_POLines;
     //SourceTableView = where("Status" = const("MTNA IF Status"::Error));
-    UsageCategory = Administration;
+    //UsageCategory = Administration;
     DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = true;

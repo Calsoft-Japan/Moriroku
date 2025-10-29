@@ -89,7 +89,7 @@ table 50012 MTNA_IF_POLinesArchive
         }
         field(21; "Header Archive Entry No."; Integer)
         {
-            Caption = 'Header Entry No.';
+            Caption = 'Header Archive Entry No.';
             TableRelation = MTNA_IF_POHeadersArchive."Archive Entry No.";
         }
     }
