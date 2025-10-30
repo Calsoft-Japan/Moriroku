@@ -147,7 +147,15 @@ page 50041 MTNA_IF_ItemReclassJournalComp
                     RecSelectedItemReclassJournal: Record "MTNA_IF_ItemReclassJournal";
                     CuMTNAIFItemReclassJournalProcArc: Codeunit "MTNAIFItemReclasJournalProcArc";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    HoursNoArc: Integer;
                 begin
+                    HoursNoArc := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Item reclass journal");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                    end;
                     RecSelectedItemReclassJournal.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
                     if (RecSelectedItemReclassJournal.IsEmpty() = false) And (RecSelectedItemReclassJournal.FindFirst()) then begin
@@ -160,7 +168,7 @@ page 50041 MTNA_IF_ItemReclassJournalComp
                             RecSelectedItemReclassJournal.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
                             if RecSelectedItemReclassJournal.FindFirst() then begin
-                                if CuMTNAIFItemReclassJournalProcArc.ProcArcItemReclassJournalData(RecSelectedItemReclassJournal, ErrorRecCount) then begin
+                                if CuMTNAIFItemReclassJournalProcArc.ProcArcItemReclassJournalData(RecSelectedItemReclassJournal, HoursNoArc, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were moved to Archive.');
                                     end

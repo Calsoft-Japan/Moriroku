@@ -125,8 +125,6 @@ codeunit 50001 MTNA_IF_CommonProcess
         exit(true);
     end;
 
-
-
     [TryFunction]
     procedure SeendEmail(EmailTo: Text; EmailCC: Text; EmailSubject: Text; EmailBody: Text)
     var

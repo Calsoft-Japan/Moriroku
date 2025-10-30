@@ -15,16 +15,24 @@ codeunit 50006 MTNAIFStandardCostProcess
     procedure ProcessAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_StandardCost: Record "MTNA_IF_StandardCost";
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        MaxProcCount: Integer;
     begin
         RecMTNA_IF_StandardCost.Reset();
         RecMTNA_IF_StandardCost.SetRange(Status, RecMTNA_IF_StandardCost.Status::Ready);
         if RecMTNA_IF_StandardCost.FindFirst() then begin
-            ProcessStandardCostData(RecMTNA_IF_StandardCost, ErrorRecCount);
+            MaxProcCount := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Standard cost");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+            end;
+            ProcessStandardCostData(RecMTNA_IF_StandardCost, MaxProcCount, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcessStandardCostData(var RecMTNA_IF_StandardCost: Record "MTNA_IF_StandardCost"; var ErrorRecCount: Integer)
+    procedure ProcessStandardCostData(var RecMTNA_IF_StandardCost: Record "MTNA_IF_StandardCost"; MaxProcCount: Integer; var ErrorRecCount: Integer)
     var
         RecStandardCostWorksheet: Record "Standard Cost Worksheet";
         ErrorMessageText: Text;
@@ -32,13 +40,16 @@ codeunit 50006 MTNAIFStandardCostProcess
         RecLastProcessingIFStandarCost: Record "MTNA_IF_StandardCost" temporary;
         pagMTNA_IF_StandardCostErr: Page "MTNA_IF_StandardCostErr";
         RecRef: RecordRef;
+        proccessedCount: Integer;
     begin
         ErrorRecCount := 0;
+        proccessedCount := 0;
         RecMTNA_IF_StandardCost.SetCurrentKey(Plant, "Standard Cost Worksheet Name");
         RecLastProcessingIFStandarCost.Init();
         RecLastProcessingIFStandarCost.Insert();
         if RecMTNA_IF_StandardCost.FindFirst() then begin
             repeat
+                proccessedCount += 1;
                 if RecMTNA_IF_StandardCost.Status = RecMTNA_IF_StandardCost.Status::Ready then begin
                     RecMTNA_IF_StandardCost."Process start datetime" := CurrentDateTime;
                     if (RecLastProcessingIFStandarCost.Plant <> RecMTNA_IF_StandardCost.Plant)
@@ -69,6 +80,9 @@ codeunit 50006 MTNAIFStandardCostProcess
                     end;
                     RecMTNA_IF_StandardCost."Processed datetime" := CurrentDateTime;
                     RecMTNA_IF_StandardCost.Modify();
+                end;
+                if ((MaxProcCount > 0) and (MaxProcCount <= proccessedCount)) then begin
+                    break;
                 end;
             until RecMTNA_IF_StandardCost.Next() = 0;
         end;

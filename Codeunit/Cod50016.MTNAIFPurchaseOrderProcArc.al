@@ -13,44 +13,55 @@ codeunit 50016 MTNAIFPurchaseOrderProcArc
     procedure ProcArcAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_POHeader: Record MTNA_IF_POHeaders;
-
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        HoursNoArc: Integer;
     begin
         RecMTNA_IF_POHeader.Reset();
         RecMTNA_IF_POHeader.SetRange(Status, RecMTNA_IF_POHeader.Status::Completed);
-        /* Will add logic to check if the records need to process archive delay*/
-        /**/
         if RecMTNA_IF_POHeader.FindFirst() then begin
-            ProcArcPurchaseOrderData(RecMTNA_IF_POHeader, ErrorRecCount);
+            HoursNoArc := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase order");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+            end;
+            ProcArcPurchaseOrderData(RecMTNA_IF_POHeader, HoursNoArc, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcArcPurchaseOrderData(var RecMTNA_IF_POHeader: Record MTNA_IF_POHeaders; var ErrorRecCount: Integer)
+    procedure ProcArcPurchaseOrderData(var RecMTNA_IF_POHeaders: Record MTNA_IF_POHeaders; HoursNoArc: Integer; var ErrorRecCount: Integer)
     var
-        RecMTNA_IF_POLine: Record MTNA_IF_POLines;
-        RecMTNA_IF_POHeaderArchive: Record MTNA_IF_POHeadersArchive;
-        RecMTNA_IF_POLineArchive: Record MTNA_IF_POLinesArchive;
+        RecMTNA_IF_POLines: Record MTNA_IF_POLines;
+        RecMTNA_IF_POHeadersArchive: Record MTNA_IF_POHeadersArchive;
+        RecMTNA_IF_POLinesArchive: Record MTNA_IF_POLinesArchive;
+        CUCommProc: Codeunit "MTNA_IF_CommonProcArc";
+        filteringDT: DateTime;
     begin
         ErrorRecCount := 0;
-        if RecMTNA_IF_POHeader.FindFirst() then begin
+        if (HoursNoArc > 0) then begin
+            filteringDT := CUCommProc.CalcDateTimePlusHours(CurrentDateTime(), -HoursNoArc);
+            RecMTNA_IF_POHeaders.SetFilter("Processed datetime", '>=%1', filteringDT);
+        end;
+        if RecMTNA_IF_POHeaders.FindFirst() then begin
             repeat
-                RecMTNA_IF_POHeaderArchive.Init();
-                RecMTNA_IF_POHeaderArchive.TransferFields(RecMTNA_IF_POHeader);
-                RecMTNA_IF_POHeaderArchive.Insert(true);
+                RecMTNA_IF_POHeadersArchive.Init();
+                RecMTNA_IF_POHeadersArchive.TransferFields(RecMTNA_IF_POHeaders);
+                RecMTNA_IF_POHeadersArchive.Insert(true);
 
-                RecMTNA_IF_POLine.Reset();
-                RecMTNA_IF_POLine.SetRange("Header Entry No.", RecMTNA_IF_POHeader."Entry No.");
-                if RecMTNA_IF_POLine.FindFirst() then begin
+                RecMTNA_IF_POLines.Reset();
+                RecMTNA_IF_POLines.SetRange("Header Entry No.", RecMTNA_IF_POHeaders."Entry No.");
+                if RecMTNA_IF_POLines.FindFirst() then begin
                     repeat
-                        RecMTNA_IF_POLineArchive.Init();
-                        RecMTNA_IF_POLineArchive.TransferFields(RecMTNA_IF_POLine);
-                        RecMTNA_IF_POLineArchive."Header Archive Entry No." := RecMTNA_IF_POHeaderArchive."Archive Entry No.";
-                        RecMTNA_IF_POLineArchive.Insert(true);
-                    until RecMTNA_IF_POLine.Next() = 0;
-                    RecMTNA_IF_POLine.DeleteAll();
+                        RecMTNA_IF_POLinesArchive.Init();
+                        RecMTNA_IF_POLinesArchive.TransferFields(RecMTNA_IF_POLines);
+                        RecMTNA_IF_POLinesArchive."Header Archive Entry No." := RecMTNA_IF_POHeadersArchive."Archive Entry No.";
+                        RecMTNA_IF_POLinesArchive.Insert(true);
+                    until RecMTNA_IF_POLines.Next() = 0;
+                    RecMTNA_IF_POLines.DeleteAll();
                 end;
-            until RecMTNA_IF_POHeader.Next() = 0;
-            RecMTNA_IF_POHeader.DeleteAll();
+            until RecMTNA_IF_POHeaders.Next() = 0;
+            RecMTNA_IF_POHeaders.DeleteAll();
         end;
     end;
 }

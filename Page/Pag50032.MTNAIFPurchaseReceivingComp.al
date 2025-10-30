@@ -122,7 +122,15 @@ page 50032 MTNA_IF_PurchaseReceivingComp
                     RecSelectedPurchaseReceiving: Record "MTNA_IF_PurchaseReceiving";
                     CuMTNAIFPurchaseReceivingProcArc: Codeunit "MTNAIFPurchaseReceivingProcArc";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    HoursNoArc: Integer;
                 begin
+                    HoursNoArc := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase receiving");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                    end;
                     RecSelectedPurchaseReceiving.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
                     if (RecSelectedPurchaseReceiving.IsEmpty() = false) And (RecSelectedPurchaseReceiving.FindFirst()) then begin
@@ -135,7 +143,7 @@ page 50032 MTNA_IF_PurchaseReceivingComp
                             RecSelectedPurchaseReceiving.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
                             if RecSelectedPurchaseReceiving.FindFirst() then begin
-                                if CuMTNAIFPurchaseReceivingProcArc.ProcArcPurchaseReceivingData(RecSelectedPurchaseReceiving, ErrorRecCount) then begin
+                                if CuMTNAIFPurchaseReceivingProcArc.ProcArcPurchaseReceivingData(RecSelectedPurchaseReceiving, HoursNoArc, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were moved to Archive.');
                                     end

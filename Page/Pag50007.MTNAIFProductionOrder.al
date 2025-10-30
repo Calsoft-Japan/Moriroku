@@ -139,9 +139,9 @@ page 50007 MTNA_IF_ProductionOrder
                     RecSelectedProductionOrder.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
                     if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
-                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Completed);
+                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Ready);
                         if (RecSelectedProductionOrder.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::Error) + ''' status.');
+                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::Ready) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin
@@ -167,7 +167,15 @@ page 50007 MTNA_IF_ProductionOrder
                     RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";
                     CuMTNAIFProductionOrderProcess: Codeunit "MTNAIFProductionOrderProcess";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    MaxProcCount: Integer;
                 begin
+                    MaxProcCount := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Production order");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+                    end;
                     RecSelectedProductionOrder.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
                     if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
@@ -180,7 +188,7 @@ page 50007 MTNA_IF_ProductionOrder
                             RecSelectedProductionOrder.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
                             if RecSelectedProductionOrder.FindFirst() then begin
-                                if CuMTNAIFProductionOrderProcess.ProcessProductionOrderData(RecSelectedProductionOrder, ErrorRecCount) then begin
+                                if CuMTNAIFProductionOrderProcess.ProcessProductionOrderData(RecSelectedProductionOrder, MaxProcCount, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were re-processed.');
                                     end

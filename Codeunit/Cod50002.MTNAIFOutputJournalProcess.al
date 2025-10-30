@@ -15,34 +15,35 @@ codeunit 50002 MTNAIFOutputJournalProcess
     procedure ProcessAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_OutputJournal: Record "MTNA_IF_OutputJournal";
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        MaxProcCount: Integer;
     begin
         RecMTNA_IF_OutputJournal.Reset();
         RecMTNA_IF_OutputJournal.SetRange(Status, RecMTNA_IF_OutputJournal.Status::Ready);
         if RecMTNA_IF_OutputJournal.FindFirst() then begin
-            ProcessOutputJournalData(RecMTNA_IF_OutputJournal, ErrorRecCount);
+            MaxProcCount := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Output journal");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+            end;
+            RecMTNAIFConfiguration.Reset();
+            ProcessOutputJournalData(RecMTNA_IF_OutputJournal, MaxProcCount, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcessOutputJournalData(var RecMTNA_IF_OutputJournal: Record "MTNA_IF_OutputJournal"; var ErrorRecCount: Integer)
+    procedure ProcessOutputJournalData(var RecMTNA_IF_OutputJournal: Record "MTNA_IF_OutputJournal"; MaxProcCount: Integer; var ErrorRecCount: Integer)
     var
         RecOutputJournalLine: Record "Item Journal Line";
         ErrorMessageText: Text;
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         pagMTNA_IF_OutputJournalErr: Page "MTNA_IF_OutputJournalErr";
         RecRef: RecordRef;
-        RecMTNAIFConfiguration: record "MTNA IF Configuration";
         proccessedCount: Integer;
-        maxProcCount: Integer;
     begin
         ErrorRecCount := 0;
         proccessedCount := 0;
-        maxProcCount := 0;
-        RecMTNAIFConfiguration.Reset();
-        RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Output journal");
-        if RecMTNAIFConfiguration.FindFirst() then begin
-            maxProcCount := RecMTNAIFConfiguration."Max. records to process";
-        end;
         if RecMTNA_IF_OutputJournal.FindFirst() then begin
             repeat
                 proccessedCount += 1;
@@ -94,7 +95,7 @@ codeunit 50002 MTNAIFOutputJournalProcess
                     RecMTNA_IF_OutputJournal.Modify();
                     Commit();
                 end;
-                if ((maxProcCount > 0) and (maxProcCount <= proccessedCount)) then begin
+                if ((MaxProcCount > 0) and (MaxProcCount <= proccessedCount)) then begin
                     break;
                 end;
             until (RecMTNA_IF_OutputJournal.Next() = 0);

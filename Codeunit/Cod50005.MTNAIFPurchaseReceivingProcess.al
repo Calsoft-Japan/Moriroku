@@ -15,16 +15,24 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
     procedure ProcessAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_PurchaseReceiving: Record "MTNA_IF_PurchaseReceiving";
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        MaxProcCount: Integer;
     begin
         RecMTNA_IF_PurchaseReceiving.Reset();
         RecMTNA_IF_PurchaseReceiving.SetRange(Status, RecMTNA_IF_PurchaseReceiving.Status::Ready);
         if RecMTNA_IF_PurchaseReceiving.FindFirst() then begin
-            ProcessPurchaseReceivingData(RecMTNA_IF_PurchaseReceiving, ErrorRecCount);
+            MaxProcCount := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase receiving");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+            end;
+            ProcessPurchaseReceivingData(RecMTNA_IF_PurchaseReceiving, MaxProcCount, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcessPurchaseReceivingData(var RecMTNA_IF_PurchaseReceiving: Record "MTNA_IF_PurchaseReceiving"; var ErrorRecCount: Integer)
+    procedure ProcessPurchaseReceivingData(var RecMTNA_IF_PurchaseReceiving: Record "MTNA_IF_PurchaseReceiving"; MaxProcCount: Integer; var ErrorRecCount: Integer)
     var
         RecPOHeaderLine: Record "Purchase Header";
         RecPOLines: Record "Purchase Line";
@@ -32,12 +40,13 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         RecReservationEntry: Record "Reservation Entry";
         pagMTNA_IF_PurchaseReceivingErr: Page "MTNA_IF_PurchaseReceivingErr";
-        RecRef: RecordRef;
+        proccessedCount: Integer;
     begin
         ErrorRecCount := 0;
-
+        proccessedCount := 0;
         if RecMTNA_IF_PurchaseReceiving.FindFirst() then begin
             repeat
+                proccessedCount += 1;
                 if RecMTNA_IF_PurchaseReceiving.Status = RecMTNA_IF_PurchaseReceiving.Status::Ready then begin
                     RecMTNA_IF_PurchaseReceiving."Process start datetime" := CurrentDateTime;
 
@@ -84,6 +93,9 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
                         RecMTNA_IF_PurchaseReceiving."Processed datetime" := CurrentDateTime;
                         RecMTNA_IF_PurchaseReceiving.Modify();
                     end;
+                end;
+                if ((MaxProcCount > 0) and (MaxProcCount <= proccessedCount)) then begin
+                    break;
                 end;
             until RecMTNA_IF_PurchaseReceiving.Next() = 0;
         end;

@@ -18,16 +18,24 @@ codeunit 50008 MTNAIFItemReclasJournalProcess
     procedure ProcessAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_ItemReclassJournal: Record "MTNA_IF_ItemReclassJournal";
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        MaxProcCount: Integer;
     begin
         RecMTNA_IF_ItemReclassJournal.Reset();
         RecMTNA_IF_ItemReclassJournal.SetRange(Status, RecMTNA_IF_ItemReclassJournal.Status::Ready);
         if RecMTNA_IF_ItemReclassJournal.FindFirst() then begin
-            ProcessItemReclassJournalData(RecMTNA_IF_ItemReclassJournal, ErrorRecCount);
+            MaxProcCount := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Item reclass journal");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+            end;
+            ProcessItemReclassJournalData(RecMTNA_IF_ItemReclassJournal, MaxProcCount, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcessItemReclassJournalData(var RecMTNA_IF_ItemReclassJournal: Record "MTNA_IF_ItemReclassJournal"; var ErrorRecCount: Integer)
+    procedure ProcessItemReclassJournalData(var RecMTNA_IF_ItemReclassJournal: Record "MTNA_IF_ItemReclassJournal"; MaxProcCount: Integer; var ErrorRecCount: Integer)
     var
         RecItemReclassJournalLine: Record "Item Journal Line";
         ErrorMessageText: Text;
@@ -36,11 +44,14 @@ codeunit 50008 MTNAIFItemReclasJournalProcess
         CuItemJnlPost: Codeunit "Item Jnl.-Post";
         pagMTNA_IF_ItemReclassJournalErr: Page "MTNA_IF_ItemReclassJournalErr";
         RecRef: RecordRef;
+        proccessedCount: Integer;
     begin
         ErrorRecCount := 0;
+        proccessedCount := 0;
         CurrentJnlTemplateName := 'TRANSFER';
         if RecMTNA_IF_ItemReclassJournal.FindFirst() then begin
             repeat
+                proccessedCount += 1;
                 if RecMTNA_IF_ItemReclassJournal.Status = RecMTNA_IF_ItemReclassJournal.Status::Ready then begin
                     RecMTNA_IF_ItemReclassJournal."Process start datetime" := CurrentDateTime;
                     RecItemReclassJournalLine.Reset();
@@ -102,6 +113,9 @@ codeunit 50008 MTNAIFItemReclasJournalProcess
                     RecMTNA_IF_ItemReclassJournal."Processed datetime" := CurrentDateTime;
                     RecMTNA_IF_ItemReclassJournal.Modify();
                     Commit();
+                end;
+                if ((MaxProcCount > 0) and (MaxProcCount <= proccessedCount)) then begin
+                    break;
                 end;
             until RecMTNA_IF_ItemReclassJournal.Next() = 0;
         end;

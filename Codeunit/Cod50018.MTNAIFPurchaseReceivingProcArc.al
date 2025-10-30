@@ -14,22 +14,34 @@ codeunit 50018 MTNAIFPurchaseReceivingProcArc
     procedure ProcArcAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_PurchaseReceiving: Record "MTNA_IF_PurchaseReceiving";
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        HoursNoArc: Integer;
     begin
         RecMTNA_IF_PurchaseReceiving.Reset();
         RecMTNA_IF_PurchaseReceiving.SetRange(Status, RecMTNA_IF_PurchaseReceiving.Status::Completed);
-        /* Will add logic to check if the records need to process archive delay*/
-        /**/
         if RecMTNA_IF_PurchaseReceiving.FindFirst() then begin
-            ProcArcPurchaseReceivingData(RecMTNA_IF_PurchaseReceiving, ErrorRecCount);
+            HoursNoArc := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase receiving");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+            end;
+            ProcArcPurchaseReceivingData(RecMTNA_IF_PurchaseReceiving, HoursNoArc, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcArcPurchaseReceivingData(var RecMTNA_IF_PurchaseReceiving: Record "MTNA_IF_PurchaseReceiving"; var ErrorRecCount: Integer)
+    procedure ProcArcPurchaseReceivingData(var RecMTNA_IF_PurchaseReceiving: Record "MTNA_IF_PurchaseReceiving"; HoursNoArc: Integer; var ErrorRecCount: Integer)
     var
         RecMTNA_IF_PurchaseReceivingArchive: Record "MTNA_IF_PurchaseReceivingArc";
+        CUCommProc: Codeunit "MTNA_IF_CommonProcArc";
+        filteringDT: DateTime;
     begin
         ErrorRecCount := 0;
+        if (HoursNoArc > 0) then begin
+            filteringDT := CUCommProc.CalcDateTimePlusHours(CurrentDateTime(), -HoursNoArc);
+            RecMTNA_IF_PurchaseReceiving.SetFilter("Processed datetime", '>=%1', filteringDT);
+        end;
         if RecMTNA_IF_PurchaseReceiving.FindFirst() then begin
             repeat
                 RecMTNA_IF_PurchaseReceivingArchive.Init();

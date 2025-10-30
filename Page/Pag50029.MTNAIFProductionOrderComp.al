@@ -132,7 +132,15 @@ page 50029 MTNA_IF_ProductionOrderComp
                     RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";
                     CuMTNAIFProductionOrderProcArc: Codeunit "MTNAIFProductionOrderProcArc";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    HoursNoArc: Integer;
                 begin
+                    HoursNoArc := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Production order");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                    end;
                     RecSelectedProductionOrder.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
                     if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
@@ -145,7 +153,7 @@ page 50029 MTNA_IF_ProductionOrderComp
                             RecSelectedProductionOrder.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
                             if RecSelectedProductionOrder.FindFirst() then begin
-                                if CuMTNAIFProductionOrderProcArc.ProcArcProductionOrderData(RecSelectedProductionOrder, ErrorRecCount) then begin
+                                if CuMTNAIFProductionOrderProcArc.ProcArcProductionOrderData(RecSelectedProductionOrder, HoursNoArc, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were moved to Archive.');
                                     end

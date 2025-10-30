@@ -201,7 +201,15 @@ page 50003 MTNA_IF_POHeaders
                     RecSelectedPOHeader: Record "MTNA_IF_POHeaders";
                     CuMTNAIFPurchaseOrderProcess: Codeunit "MTNAIFPurchaseOrderProcess";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    MaxProcCount: Integer;
                 begin
+                    MaxProcCount := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase order");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+                    end;
                     RecSelectedPOHeader.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedPOHeader);
                     if (RecSelectedPOHeader.IsEmpty() = false) And (RecSelectedPOHeader.FindFirst()) then begin
@@ -214,7 +222,7 @@ page 50003 MTNA_IF_POHeaders
                             RecSelectedPOHeader.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedPOHeader);
                             if RecSelectedPOHeader.FindFirst() then begin
-                                if CuMTNAIFPurchaseOrderProcess.ProcessPurchaseOrderData(RecSelectedPOHeader, ErrorRecCount) then begin
+                                if CuMTNAIFPurchaseOrderProcess.ProcessPurchaseOrderData(RecSelectedPOHeader, MaxProcCount, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were re-processed.');
                                     end

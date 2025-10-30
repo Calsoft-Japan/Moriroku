@@ -188,7 +188,15 @@ page 50001 MTNA_IF_OutputJournal
                     RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
                     CuMTNAIFOutputJournalProcess: Codeunit "MTNAIFOutputJournalProcess";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    MaxProcCount: Integer;
                 begin
+                    MaxProcCount := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Output journal");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+                    end;
                     RecSelectedOutputJournal.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
                     if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
@@ -201,7 +209,7 @@ page 50001 MTNA_IF_OutputJournal
                             RecSelectedOutputJournal.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
                             if RecSelectedOutputJournal.FindFirst() then begin
-                                if CuMTNAIFOutputJournalProcess.ProcessOutputJournalData(RecSelectedOutputJournal, ErrorRecCount) then begin
+                                if CuMTNAIFOutputJournalProcess.ProcessOutputJournalData(RecSelectedOutputJournal, MaxProcCount, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were re-processed.');
                                     end

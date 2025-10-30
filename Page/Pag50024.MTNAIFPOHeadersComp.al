@@ -156,7 +156,15 @@ page 50024 MTNA_IF_POHeadersComp
                     RecSelectedPOHeader: Record "MTNA_IF_POHeaders";
                     CuMTNAIFPurchaseOrderProcArc: Codeunit "MTNAIFPurchaseOrderProcArc";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    HoursNoArc: Integer;
                 begin
+                    HoursNoArc := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase order");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                    end;
                     RecSelectedPOHeader.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedPOHeader);
                     if (RecSelectedPOHeader.IsEmpty() = false) And (RecSelectedPOHeader.FindFirst()) then begin
@@ -169,7 +177,7 @@ page 50024 MTNA_IF_POHeadersComp
                             RecSelectedPOHeader.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedPOHeader);
                             if RecSelectedPOHeader.FindFirst() then begin
-                                if CuMTNAIFPurchaseOrderProcArc.ProcArcPurchaseOrderData(RecSelectedPOHeader, ErrorRecCount) then begin
+                                if CuMTNAIFPurchaseOrderProcArc.ProcArcPurchaseOrderData(RecSelectedPOHeader, HoursNoArc, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were moved to Archive.');
                                     end

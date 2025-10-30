@@ -15,17 +15,24 @@ codeunit 50003 MTNAIFPurchaseOrderProcess
     procedure ProcessAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_POHeader: Record MTNA_IF_POHeaders;
-
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        MaxProcCount: Integer;
     begin
         RecMTNA_IF_POHeader.Reset();
         RecMTNA_IF_POHeader.SetRange(Status, RecMTNA_IF_POHeader.Status::Ready);
         if RecMTNA_IF_POHeader.FindFirst() then begin
-            ProcessPurchaseOrderData(RecMTNA_IF_POHeader, ErrorRecCount);
+            MaxProcCount := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase order");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+            end;
+            ProcessPurchaseOrderData(RecMTNA_IF_POHeader, MaxProcCount, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcessPurchaseOrderData(var RecMTNA_IF_POHeaders: Record MTNA_IF_POHeaders; var ErrorRecCount: Integer)
+    procedure ProcessPurchaseOrderData(var RecMTNA_IF_POHeaders: Record MTNA_IF_POHeaders; MaxProcCount: Integer; var ErrorRecCount: Integer)
     var
         RecPOHeaderLine: Record "Purchase Header";
         RecPOLines: Record "Purchase Line";
@@ -35,13 +42,15 @@ codeunit 50003 MTNAIFPurchaseOrderProcess
         POHeaderNo: Code[20];
         RecItem: Record Item;
         RecItemUom: Record "Item Unit of Measure";
+        proccessedCount: Integer;
     begin
         ErrorRecCount := 0;
+        proccessedCount := 0;
         if RecMTNA_IF_POHeaders.FindFirst() then begin
             repeat
+                proccessedCount += 1;
                 if RecMTNA_IF_POHeaders.Status = RecMTNA_IF_POHeaders.Status::Ready then begin
                     RecMTNA_IF_POHeaders."Process start datetime" := CurrentDateTime;
-
                     if InsertPurchaseHeader(RecMTNA_IF_POHeaders, POHeaderNo) then begin
                         RecMTNA_IF_POHeaders.Status := RecMTNA_IF_POHeaders.Status::Completed;
                         RecMTNA_IF_POHeaders.Modify();
@@ -100,6 +109,9 @@ codeunit 50003 MTNAIFPurchaseOrderProcess
                     end;
                     RecMTNA_IF_POHeaders."Processed datetime" := CurrentDateTime;
                     RecMTNA_IF_POHeaders.Modify();
+                end;
+                if ((MaxProcCount > 0) and (MaxProcCount <= proccessedCount)) then begin
+                    break;
                 end;
             until RecMTNA_IF_POHeaders.Next() = 0;
         end;

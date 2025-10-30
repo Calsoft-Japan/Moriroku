@@ -157,7 +157,15 @@ page 50009 MTNA_IF_PurchaseReceiving
                     RecSelectedPurchaseReceiving: Record "MTNA_IF_PurchaseReceiving";
                     CuMTNAIFPurchaseReceivingProcess: Codeunit "MTNAIFPurchaseReceivingProcess";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    MaxProcCount: Integer;
                 begin
+                    MaxProcCount := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase receiving");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+                    end;
                     RecSelectedPurchaseReceiving.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
                     if (RecSelectedPurchaseReceiving.IsEmpty() = false) And (RecSelectedPurchaseReceiving.FindFirst()) then begin
@@ -170,7 +178,7 @@ page 50009 MTNA_IF_PurchaseReceiving
                             RecSelectedPurchaseReceiving.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
                             if RecSelectedPurchaseReceiving.FindFirst() then begin
-                                if CuMTNAIFPurchaseReceivingProcess.ProcessPurchaseReceivingData(RecSelectedPurchaseReceiving, ErrorRecCount) then begin
+                                if CuMTNAIFPurchaseReceivingProcess.ProcessPurchaseReceivingData(RecSelectedPurchaseReceiving, MaxProcCount, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were re-processed.');
                                     end

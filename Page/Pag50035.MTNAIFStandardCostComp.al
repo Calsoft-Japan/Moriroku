@@ -97,7 +97,15 @@ page 50035 MTNA_IF_StandardCostComp
                     RecSelectedStandardCost: Record "MTNA_IF_StandardCost";
                     CuMTNAIFStandardCostProcArc: Codeunit "MTNAIFStandardCostProcArc";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    HoursNoArc: Integer;
                 begin
+                    HoursNoArc := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Standard cost");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                    end;
                     RecSelectedStandardCost.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedStandardCost);
                     if (RecSelectedStandardCost.IsEmpty() = false) And (RecSelectedStandardCost.FindFirst()) then begin
@@ -110,7 +118,7 @@ page 50035 MTNA_IF_StandardCostComp
                             RecSelectedStandardCost.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedStandardCost);
                             if RecSelectedStandardCost.FindFirst() then begin
-                                if CuMTNAIFStandardCostProcArc.ProcArcStandardCostData(RecSelectedStandardCost, ErrorRecCount) then begin
+                                if CuMTNAIFStandardCostProcArc.ProcArcStandardCostData(RecSelectedStandardCost, HoursNoArc, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were moved to Archive.');
                                     end

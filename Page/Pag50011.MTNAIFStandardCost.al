@@ -131,7 +131,15 @@ page 50011 MTNA_IF_StandardCost
                     RecSelectedStandardCost: Record "MTNA_IF_StandardCost";
                     CuMTNAIFStandardCostProcess: Codeunit "MTNAIFStandardCostProcess";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    MaxProcCount: Integer;
                 begin
+                    MaxProcCount := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Standard cost");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+                    end;
                     RecSelectedStandardCost.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedStandardCost);
                     if (RecSelectedStandardCost.IsEmpty() = false) And (RecSelectedStandardCost.FindFirst()) then begin
@@ -144,7 +152,7 @@ page 50011 MTNA_IF_StandardCost
                             RecSelectedStandardCost.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedStandardCost);
                             if RecSelectedStandardCost.FindFirst() then begin
-                                if CuMTNAIFStandardCostProcess.ProcessStandardCostData(RecSelectedStandardCost, ErrorRecCount) then begin
+                                if CuMTNAIFStandardCostProcess.ProcessStandardCostData(RecSelectedStandardCost, MaxProcCount, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were re-processed.');
                                     end

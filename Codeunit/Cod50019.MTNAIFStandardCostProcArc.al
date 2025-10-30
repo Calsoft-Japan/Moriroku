@@ -14,22 +14,34 @@ codeunit 50019 MTNAIFStandardCostProcArc
     procedure ProcArcAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_StandardCost: Record "MTNA_IF_StandardCost";
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        HoursNoArc: Integer;
     begin
         RecMTNA_IF_StandardCost.Reset();
         RecMTNA_IF_StandardCost.SetRange(Status, RecMTNA_IF_StandardCost.Status::Completed);
-        /* Will add logic to check if the records need to process archive delay*/
-        /**/
         if RecMTNA_IF_StandardCost.FindFirst() then begin
-            ProcArcStandardCostData(RecMTNA_IF_StandardCost, ErrorRecCount);
+            HoursNoArc := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Standard cost");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+            end;
+            ProcArcStandardCostData(RecMTNA_IF_StandardCost, HoursNoArc, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcArcStandardCostData(var RecMTNA_IF_StandardCost: Record "MTNA_IF_StandardCost"; var ErrorRecCount: Integer)
+    procedure ProcArcStandardCostData(var RecMTNA_IF_StandardCost: Record "MTNA_IF_StandardCost"; HoursNoArc: Integer; var ErrorRecCount: Integer)
     var
         RecMTNA_IF_StandardCostArchive: Record "MTNA_IF_StandardCostArchive";
+        CUCommProc: Codeunit "MTNA_IF_CommonProcArc";
+        filteringDT: DateTime;
     begin
         ErrorRecCount := 0;
+        if (HoursNoArc > 0) then begin
+            filteringDT := CUCommProc.CalcDateTimePlusHours(CurrentDateTime(), -HoursNoArc);
+            RecMTNA_IF_StandardCost.SetFilter("Processed datetime", '>=%1', filteringDT);
+        end;
         if RecMTNA_IF_StandardCost.FindFirst() then begin
             repeat
                 RecMTNA_IF_StandardCostArchive.Init();

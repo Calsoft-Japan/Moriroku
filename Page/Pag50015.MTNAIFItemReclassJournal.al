@@ -180,7 +180,15 @@ page 50015 MTNA_IF_ItemReclassJournal
                     RecSelectedItemReclassJournal: Record "MTNA_IF_ItemReclassJournal";
                     CuMTNAIFItemJournalProcess: Codeunit "MTNAIFItemReclasJournalProcess";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    MaxProcCount: Integer;
                 begin
+                    MaxProcCount := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Item reclass journal");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+                    end;
                     RecSelectedItemReclassJournal.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
                     if (RecSelectedItemReclassJournal.IsEmpty() = false) And (RecSelectedItemReclassJournal.FindFirst()) then begin
@@ -193,7 +201,7 @@ page 50015 MTNA_IF_ItemReclassJournal
                             RecSelectedItemReclassJournal.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedItemReclassJournal);
                             if RecSelectedItemReclassJournal.FindFirst() then begin
-                                if CuMTNAIFItemJournalProcess.ProcessItemReclassJournalData(RecSelectedItemReclassJournal, ErrorRecCount) then begin
+                                if CuMTNAIFItemJournalProcess.ProcessItemReclassJournalData(RecSelectedItemReclassJournal, MaxProcCount, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were re-processed.');
                                     end

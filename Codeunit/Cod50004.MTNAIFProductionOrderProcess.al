@@ -15,20 +15,29 @@ codeunit 50004 MTNAIFProductionOrderProcess
     procedure ProcessAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_ProductionOrder: Record "MTNA_IF_ProductionOrder";
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        MaxProcCount: Integer;
     begin
         RecMTNA_IF_ProductionOrder.Reset();
         RecMTNA_IF_ProductionOrder.SetRange(Status, RecMTNA_IF_ProductionOrder.Status::Ready);
         if RecMTNA_IF_ProductionOrder.FindFirst() then begin
-            ProcessProductionOrderData(RecMTNA_IF_ProductionOrder, ErrorRecCount);
+            MaxProcCount := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Production order");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+            end;
+            ProcessProductionOrderData(RecMTNA_IF_ProductionOrder, MaxProcCount, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcessProductionOrderData(var RecMTNA_IF_ProductionOrder: Record "MTNA_IF_ProductionOrder"; var ErrorRecCount: Integer)
+    procedure ProcessProductionOrderData(var RecMTNA_IF_ProductionOrder: Record "MTNA_IF_ProductionOrder"; MaxProcCount: Integer; var ErrorRecCount: Integer)
     var
         RecProductionOrder: Record "Production Order";
         ErrorMessageText: Text;
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
+        proccessedCount: Integer;
     begin
         CalcLines := true;
         CalcRoutings := true;
@@ -36,8 +45,10 @@ codeunit 50004 MTNAIFProductionOrderProcess
         Direction := Direction::Backward;
         CreateInbRqst := false;
         ErrorRecCount := 0;
+        proccessedCount := 0;
         if RecMTNA_IF_ProductionOrder.FindFirst() then begin
             repeat
+                proccessedCount += 1;
                 if RecMTNA_IF_ProductionOrder.Status = RecMTNA_IF_ProductionOrder.Status::Ready then begin
                     RecMTNA_IF_ProductionOrder."Process start datetime" := CurrentDateTime;
                     RecProductionOrder.Reset();
@@ -79,6 +90,9 @@ codeunit 50004 MTNAIFProductionOrderProcess
                     end;
                     RecMTNA_IF_ProductionOrder."Processed datetime" := CurrentDateTime;
                     RecMTNA_IF_ProductionOrder.Modify();
+                end;
+                if ((MaxProcCount > 0) and (MaxProcCount <= proccessedCount)) then begin
+                    break;
                 end;
             until RecMTNA_IF_ProductionOrder.Next() = 0;
         end;

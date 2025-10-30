@@ -14,22 +14,34 @@ codeunit 50017 MTNAIFProductionOrderProcArc
     procedure ProcArcAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_ProductionOrder: Record "MTNA_IF_ProductionOrder";
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        HoursNoArc: Integer;
     begin
         RecMTNA_IF_ProductionOrder.Reset();
         RecMTNA_IF_ProductionOrder.SetRange(Status, RecMTNA_IF_ProductionOrder.Status::Completed);
-        /* Will add logic to check if the records need to process archive delay*/
-        /**/
         if RecMTNA_IF_ProductionOrder.FindFirst() then begin
-            ProcArcProductionOrderData(RecMTNA_IF_ProductionOrder, ErrorRecCount);
+            HoursNoArc := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Production order");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+            end;
+            ProcArcProductionOrderData(RecMTNA_IF_ProductionOrder, HoursNoArc, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcArcProductionOrderData(var RecMTNA_IF_ProductionOrder: Record "MTNA_IF_ProductionOrder"; var ErrorRecCount: Integer)
+    procedure ProcArcProductionOrderData(var RecMTNA_IF_ProductionOrder: Record "MTNA_IF_ProductionOrder"; HoursNoArc: Integer; var ErrorRecCount: Integer)
     var
         RecMTNA_IF_ProductionOrderArchive: Record "MTNA_IF_ProductionOrderArchive";
+        CUCommProc: Codeunit "MTNA_IF_CommonProcArc";
+        filteringDT: DateTime;
     begin
         ErrorRecCount := 0;
+        if (HoursNoArc > 0) then begin
+            filteringDT := CUCommProc.CalcDateTimePlusHours(CurrentDateTime(), -HoursNoArc);
+            RecMTNA_IF_ProductionOrder.SetFilter("Processed datetime", '>=%1', filteringDT);
+        end;
         if RecMTNA_IF_ProductionOrder.FindFirst() then begin
             repeat
                 RecMTNA_IF_ProductionOrderArchive.Init();

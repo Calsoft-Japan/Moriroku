@@ -18,16 +18,24 @@ codeunit 50007 MTNAIFItemJournalProcess
     procedure ProcessAllData(var ErrorRecCount: Integer)
     var
         RecMTNA_IF_ItemJournal: Record "MTNA_IF_ItemJournal";
+        RecMTNAIFConfiguration: record "MTNA IF Configuration";
+        MaxProcCount: Integer;
     begin
         RecMTNA_IF_ItemJournal.Reset();
         RecMTNA_IF_ItemJournal.SetRange(Status, RecMTNA_IF_ItemJournal.Status::Ready);
         if RecMTNA_IF_ItemJournal.FindFirst() then begin
-            ProcessItemJournalData(RecMTNA_IF_ItemJournal, ErrorRecCount);
+            MaxProcCount := 0;
+            RecMTNAIFConfiguration.Reset();
+            RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Item journal");
+            if RecMTNAIFConfiguration.FindFirst() then begin
+                MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
+            end;
+            ProcessItemJournalData(RecMTNA_IF_ItemJournal, MaxProcCount, ErrorRecCount);
         end;
     end;
 
     [TryFunction]
-    procedure ProcessItemJournalData(var RecMTNA_IF_ItemJournal: Record "MTNA_IF_ItemJournal"; var ErrorRecCount: Integer)
+    procedure ProcessItemJournalData(var RecMTNA_IF_ItemJournal: Record "MTNA_IF_ItemJournal"; MaxProcCount: Integer; var ErrorRecCount: Integer)
     var
         RecItemJournalLine: Record "Item Journal Line";
         ErrorMessageText: Text;
@@ -35,11 +43,14 @@ codeunit 50007 MTNAIFItemJournalProcess
         RecReservationEntry: Record "Reservation Entry";
         pagMTNA_IF_ItemJournalErr: Page "MTNA_IF_ItemJournalErr";
         RecRef: RecordRef;
+        proccessedCount: Integer;
     begin
         ErrorRecCount := 0;
+        proccessedCount := 0;
         CurrentJnlTemplateName := 'Item';
         if RecMTNA_IF_ItemJournal.FindFirst() then begin
             repeat
+                proccessedCount += 1;
                 if RecMTNA_IF_ItemJournal.Status = RecMTNA_IF_ItemJournal.Status::Ready then begin
                     RecMTNA_IF_ItemJournal."Process start datetime" := CurrentDateTime;
                     RecItemJournalLine.Reset();
@@ -99,6 +110,9 @@ codeunit 50007 MTNAIFItemJournalProcess
                     RecMTNA_IF_ItemJournal."Processed datetime" := CurrentDateTime;
                     RecMTNA_IF_ItemJournal.Modify();
                     Commit();
+                end;
+                if ((MaxProcCount > 0) and (MaxProcCount <= proccessedCount)) then begin
+                    break;
                 end;
             until RecMTNA_IF_ItemJournal.Next() = 0;
         end;

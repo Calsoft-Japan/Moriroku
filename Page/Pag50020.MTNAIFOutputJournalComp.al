@@ -152,7 +152,15 @@ page 50020 MTNA_IF_OutputJournalComp
                     RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
                     CuMTNAIFOutputJournalProcArc: Codeunit "MTNAIFOutputJournalProcArc";
                     ErrorRecCount: Integer;
+                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
+                    HoursNoArc: Integer;
                 begin
+                    HoursNoArc := 0;
+                    RecMTNAIFConfiguration.Reset();
+                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Output journal");
+                    if RecMTNAIFConfiguration.FindFirst() then begin
+                        HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                    end;
                     RecSelectedOutputJournal.Reset();
                     CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
                     if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
@@ -165,7 +173,7 @@ page 50020 MTNA_IF_OutputJournalComp
                             RecSelectedOutputJournal.Reset();
                             CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
                             if RecSelectedOutputJournal.FindFirst() then begin
-                                if CuMTNAIFOutputJournalProcArc.ProcArcOutputJournalData(RecSelectedOutputJournal, ErrorRecCount) then begin
+                                if CuMTNAIFOutputJournalProcArc.ProcArcOutputJournalData(RecSelectedOutputJournal, HoursNoArc, ErrorRecCount) then begin
                                     if ErrorRecCount = 0 then begin
                                         Message('All selected records were moved to Archive.');
                                     end
