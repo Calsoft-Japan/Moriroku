@@ -47,7 +47,7 @@ codeunit 50001 MTNA_IF_CommonProcess
     end;
 
     [TryFunction]
-    procedure SendNotificationEmail(FunctionName: Text; Plant: Enum "MTNA IF Plant"; RecordID: Text; ProcessStartTime: DateTime; Errormessage: Text; PageCaption: Text; PageId: Text; var RecRef: RecordRef)
+    procedure SendNotificationEmail(FunctionName: Text; Plant: Enum "MTNA IF Plant"; RecordID: Text; ProcessStartTime: DateTime; Errormessage: Text; PageCaption: Text; PageId: Text)
     var
         subject, body : text;
         RecCompanyInfo: Record "Company Information";
@@ -58,7 +58,7 @@ codeunit 50001 MTNA_IF_CommonProcess
         dateStr: text;
         pageUrl: text;
     begin
-        pageUrl := GetPageUrl(PageId, RecRef);
+        pageUrl := GetPageUrl(PageId);
         RecMTNAIFEmailNotification.Reset();
         RecMTNAIFEmailNotification.SetRange(Plant, Plant);
         if RecMTNAIFEmailNotification.FindFirst() then begin
@@ -86,10 +86,9 @@ codeunit 50001 MTNA_IF_CommonProcess
         end;
     end;
 
-    procedure GetPageUrl(PageId: Text; var RecRef: RecordRef): Text
+    procedure GetPageUrl(PageId: Text): Text
     var
         Url: Text;
-        RecMN: Record MTNA_IF_ItemJournal;
         RealPageId: Integer;
     begin
         if GetPageId(PageId, RealPageId) then begin

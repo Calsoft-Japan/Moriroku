@@ -202,14 +202,12 @@ codeunit 50005 MTNAIFPurchaseReceivingProcess
     var
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         pagMTNA_IF_PurchaseReceivingErr: Page "MTNA_IF_PurchaseReceivingErr";
-        RecRef: RecordRef;
     begin
         RecMTNA_IF_PurchaseReceiving.Status := RecMTNA_IF_PurchaseReceiving.Status::Error;
         RecMTNA_IF_PurchaseReceiving.SetErrormessage('Error occurred when updating Purchase Receiving. The detailed error message is: ' + ErrorMessageText);
         RecMTNA_IF_PurchaseReceiving.Modify();
-        RecRef.GetTable(RecMTNA_IF_PurchaseReceiving);
         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Purchase Receiving Process update', RecMTNA_IF_PurchaseReceiving.Plant, Format(RecMTNA_IF_PurchaseReceiving."Entry No."),
-            RecMTNA_IF_PurchaseReceiving."Process start datetime", ErrorMessageText, pagMTNA_IF_PurchaseReceivingErr.Caption, pagMTNA_IF_PurchaseReceivingErr.ObjectId(false), RecRef) then begin
+            RecMTNA_IF_PurchaseReceiving."Process start datetime", ErrorMessageText, pagMTNA_IF_PurchaseReceivingErr.Caption, pagMTNA_IF_PurchaseReceivingErr.ObjectId(false)) then begin
         end;
     end;
 

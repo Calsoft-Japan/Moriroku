@@ -42,7 +42,6 @@ codeunit 50007 MTNAIFItemJournalProcess
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         RecReservationEntry: Record "Reservation Entry";
         pagMTNA_IF_ItemJournalErr: Page "MTNA_IF_ItemJournalErr";
-        RecRef: RecordRef;
         proccessedCount: Integer;
     begin
         ErrorRecCount := 0;
@@ -89,9 +88,8 @@ codeunit 50007 MTNAIFItemJournalProcess
                                 RecReservationEntry.DeleteAll(true);
                             end;
                             RecItemJournalLine.Delete(true);
-                            RecRef.GetTable(RecMTNA_IF_ItemJournal);
                             if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Item Journal Process Post', RecMTNA_IF_ItemJournal.Plant, Format(RecMTNA_IF_ItemJournal."Entry No."),
-                                RecMTNA_IF_ItemJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemJournalErr.Caption, pagMTNA_IF_ItemJournalErr.ObjectId(false), RecRef) then begin
+                                RecMTNA_IF_ItemJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemJournalErr.Caption, pagMTNA_IF_ItemJournalErr.ObjectId(false)) then begin
                             end;
                             ErrorRecCount += 1;
                         end;
@@ -101,9 +99,8 @@ codeunit 50007 MTNAIFItemJournalProcess
                         RecMTNA_IF_ItemJournal.Status := RecMTNA_IF_ItemJournal.Status::Error;
                         RecMTNA_IF_ItemJournal.SetErrormessage('Error occurred when inserting Item Journal Line. The detailed error message is: ' + ErrorMessageText);
                         RecMTNA_IF_ItemJournal.Modify();
-                        RecRef.GetTable(RecMTNA_IF_ItemJournal);
                         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Item Journal Process Insert', RecMTNA_IF_ItemJournal.Plant, Format(RecMTNA_IF_ItemJournal."Entry No."),
-                            RecMTNA_IF_ItemJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemJournalErr.Caption, pagMTNA_IF_ItemJournalErr.ObjectId(false), RecRef) then begin
+                            RecMTNA_IF_ItemJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemJournalErr.Caption, pagMTNA_IF_ItemJournalErr.ObjectId(false)) then begin
                         end;
                         ErrorRecCount += 1;
                     end;

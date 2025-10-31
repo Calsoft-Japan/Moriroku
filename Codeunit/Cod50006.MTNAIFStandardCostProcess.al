@@ -39,7 +39,6 @@ codeunit 50006 MTNAIFStandardCostProcess
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         RecLastProcessingIFStandarCost: Record "MTNA_IF_StandardCost" temporary;
         pagMTNA_IF_StandardCostErr: Page "MTNA_IF_StandardCostErr";
-        RecRef: RecordRef;
         proccessedCount: Integer;
     begin
         ErrorRecCount := 0;
@@ -72,9 +71,8 @@ codeunit 50006 MTNAIFStandardCostProcess
                         RecMTNA_IF_StandardCost.Status := RecMTNA_IF_StandardCost.Status::Error;
                         RecMTNA_IF_StandardCost.SetErrormessage('Error occurred when inserting Standard Cost Worksheet Line. The detailed error message is: ' + ErrorMessageText);
                         RecMTNA_IF_StandardCost.Modify();
-                        RecRef.GetTable(RecMTNA_IF_StandardCost);
                         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Standard Cost Worksheet Process Insert', RecMTNA_IF_StandardCost.Plant, Format(RecMTNA_IF_StandardCost."Entry No."),
-                            RecMTNA_IF_StandardCost."Process start datetime", ErrorMessageText, pagMTNA_IF_StandardCostErr.Caption, pagMTNA_IF_StandardCostErr.ObjectId(false), RecRef) then begin
+                            RecMTNA_IF_StandardCost."Process start datetime", ErrorMessageText, pagMTNA_IF_StandardCostErr.Caption, pagMTNA_IF_StandardCostErr.ObjectId(false)) then begin
                         end;
                         ErrorRecCount += 1;
                     end;

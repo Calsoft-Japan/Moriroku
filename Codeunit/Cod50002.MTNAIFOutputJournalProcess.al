@@ -39,7 +39,6 @@ codeunit 50002 MTNAIFOutputJournalProcess
         ErrorMessageText: Text;
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         pagMTNA_IF_OutputJournalErr: Page "MTNA_IF_OutputJournalErr";
-        RecRef: RecordRef;
         proccessedCount: Integer;
     begin
         ErrorRecCount := 0;
@@ -68,9 +67,8 @@ codeunit 50002 MTNAIFOutputJournalProcess
                             RecMTNA_IF_OutputJournal.SetErrormessage('Error occurred when posting Item Journal Line, the detailed error message is: ' + ErrorMessageText);
                             RecMTNA_IF_OutputJournal.Modify();
                             RecOutputJournalLine.Delete();
-                            RecRef.GetTable(RecMTNA_IF_OutputJournal);
                             if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Output Journal Process Post', RecMTNA_IF_OutputJournal.Plant, Format(RecMTNA_IF_OutputJournal."Entry No."),
-                                RecMTNA_IF_OutputJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_OutputJournalErr.Caption, pagMTNA_IF_OutputJournalErr.ObjectId(false), RecRef) then begin
+                                RecMTNA_IF_OutputJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_OutputJournalErr.Caption, pagMTNA_IF_OutputJournalErr.ObjectId(false)) then begin
                             end;
                             ErrorRecCount += 1;
                         end;
@@ -80,9 +78,8 @@ codeunit 50002 MTNAIFOutputJournalProcess
                         RecMTNA_IF_OutputJournal.Status := RecMTNA_IF_OutputJournal.Status::Error;
                         RecMTNA_IF_OutputJournal.SetErrormessage('Error occurred when inserting Item Journal Line. The detailed error message is: ' + ErrorMessageText);
                         RecMTNA_IF_OutputJournal.Modify();
-                        RecRef.GetTable(RecMTNA_IF_OutputJournal);
                         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Output Journal Process Insert', RecMTNA_IF_OutputJournal.Plant, Format(RecMTNA_IF_OutputJournal."Entry No."),
-                            RecMTNA_IF_OutputJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_OutputJournalErr.Caption, pagMTNA_IF_OutputJournalErr.ObjectId(false), RecRef) then begin
+                            RecMTNA_IF_OutputJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_OutputJournalErr.Caption, pagMTNA_IF_OutputJournalErr.ObjectId(false)) then begin
                         end;
                         ErrorRecCount += 1;
                         RecOutputJournalLine.Reset();
@@ -101,8 +98,7 @@ codeunit 50002 MTNAIFOutputJournalProcess
             until (RecMTNA_IF_OutputJournal.Next() = 0);
 
             if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Output Journal Process Post', RecMTNA_IF_OutputJournal.Plant, Format(RecMTNA_IF_OutputJournal."Entry No."),
-                                            RecMTNA_IF_OutputJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_OutputJournalErr.Caption, pagMTNA_IF_OutputJournalErr.ObjectId(false), RecRef) then begin
-
+                RecMTNA_IF_OutputJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_OutputJournalErr.Caption, pagMTNA_IF_OutputJournalErr.ObjectId(false)) then begin
             end;
         end;
     end;

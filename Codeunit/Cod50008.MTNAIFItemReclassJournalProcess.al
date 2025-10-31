@@ -43,7 +43,6 @@ codeunit 50008 MTNAIFItemReclasJournalProcess
         RecReservationEntry: Record "Reservation Entry";
         CuItemJnlPost: Codeunit "Item Jnl.-Post";
         pagMTNA_IF_ItemReclassJournalErr: Page "MTNA_IF_ItemReclassJournalErr";
-        RecRef: RecordRef;
         proccessedCount: Integer;
     begin
         ErrorRecCount := 0;
@@ -92,9 +91,8 @@ codeunit 50008 MTNAIFItemReclasJournalProcess
                                 RecReservationEntry.DeleteAll(true);
                             end;
                             RecItemReclassJournalLine.Delete(true);
-                            RecRef.GetTable(RecMTNA_IF_ItemReclassJournal);
                             if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Item Reclass Journal Process Post', RecMTNA_IF_ItemReclassJournal.Plant, Format(RecMTNA_IF_ItemReclassJournal."Entry No."),
-                                RecMTNA_IF_ItemReclassJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemReclassJournalErr.Caption, pagMTNA_IF_ItemReclassJournalErr.ObjectId(false), RecRef) then begin
+                                RecMTNA_IF_ItemReclassJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemReclassJournalErr.Caption, pagMTNA_IF_ItemReclassJournalErr.ObjectId(false)) then begin
                             end;
                             ErrorRecCount += 1;
                         end;
@@ -104,9 +102,8 @@ codeunit 50008 MTNAIFItemReclasJournalProcess
                         RecMTNA_IF_ItemReclassJournal.Status := RecMTNA_IF_ItemReclassJournal.Status::Error;
                         RecMTNA_IF_ItemReclassJournal.SetErrormessage('Error occurred when inserting Item Journal Line. The detailed error message is: ' + ErrorMessageText);
                         RecMTNA_IF_ItemReclassJournal.Modify();
-                        RecRef.GetTable(RecMTNA_IF_ItemReclassJournal);
                         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Item Reclass Journal Process Insert', RecMTNA_IF_ItemReclassJournal.Plant, Format(RecMTNA_IF_ItemReclassJournal."Entry No."),
-                            RecMTNA_IF_ItemReclassJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemReclassJournalErr.Caption, pagMTNA_IF_ItemReclassJournalErr.ObjectId(false), RecRef) then begin
+                            RecMTNA_IF_ItemReclassJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_ItemReclassJournalErr.Caption, pagMTNA_IF_ItemReclassJournalErr.ObjectId(false)) then begin
                         end;
                         ErrorRecCount += 1;
                     end;

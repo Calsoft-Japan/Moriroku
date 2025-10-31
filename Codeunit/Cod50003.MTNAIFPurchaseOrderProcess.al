@@ -51,7 +51,14 @@ codeunit 50003 MTNAIFPurchaseOrderProcess
                 proccessedCount += 1;
                 if RecMTNA_IF_POHeaders.Status = RecMTNA_IF_POHeaders.Status::Ready then begin
                     RecMTNA_IF_POHeaders."Process start datetime" := CurrentDateTime;
-                    if InsertPurchaseHeader(RecMTNA_IF_POHeaders, POHeaderNo) then begin
+                    RecMTNA_IF_POLines.Reset();
+                    Clear(RecPOHeaderLine);
+                    if RecPOHeaderLine.Get(RecPOHeaderLine."Document Type"::Order, RecMTNA_IF_POHeaders."Order ID") then begin
+                        ErrorRecCount += 1;
+                        ErrorMessageText := 'The record in table Purchase Header already exists. ldentification fields and values: Document Type=''Order'', No.=' + RecMTNA_IF_POHeaders."Order ID" + '''';
+                        POHeaderErrorMessage(RecMTNA_IF_POHeaders, ErrorMessageText);
+                    end
+                    else if InsertPurchaseHeader(RecMTNA_IF_POHeaders, POHeaderNo) then begin
                         RecMTNA_IF_POHeaders.Status := RecMTNA_IF_POHeaders.Status::Completed;
                         RecMTNA_IF_POHeaders.Modify();
 
@@ -253,14 +260,12 @@ codeunit 50003 MTNAIFPurchaseOrderProcess
     var
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         pagMTNA_IF_POHeadersErr: Page "MTNA_IF_POHeadersErr";
-        RecRef: RecordRef;
     begin
         RecMTNA_IF_POHeaders.Status := RecMTNA_IF_POHeaders.Status::Error;
         RecMTNA_IF_POHeaders.SetErrormessage('Error occurred when inserting Purchase order header. The detailed error message is: ' + ErrorMessageText);
         RecMTNA_IF_POHeaders.Modify();
-        RecRef.GetTable(RecMTNA_IF_POHeaders);
         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF POHeader Process Insert', RecMTNA_IF_POHeaders.Plant, Format(RecMTNA_IF_POHeaders."Entry No."),
-            RecMTNA_IF_POHeaders."Process start datetime", ErrorMessageText, pagMTNA_IF_POHeadersErr.Caption, pagMTNA_IF_POHeadersErr.ObjectId(false), RecRef) then begin
+            RecMTNA_IF_POHeaders."Process start datetime", ErrorMessageText, pagMTNA_IF_POHeadersErr.Caption, pagMTNA_IF_POHeadersErr.ObjectId(false)) then begin
         end;
     end;
 
@@ -269,14 +274,12 @@ codeunit 50003 MTNAIFPurchaseOrderProcess
     var
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         pagMTNA_IF_POHeadersErr: Page "MTNA_IF_POHeadersErr";
-        RecRef: RecordRef;
     begin
         RecMTNA_IF_POLines.Status := RecMTNA_IF_POLines.Status::Error;
         RecMTNA_IF_POLines.SetErrormessage('Error occurred when inserting Purchase order lines. The detailed error message is: ' + ErrorMessageText);
         RecMTNA_IF_POLines.Modify();
-        RecRef.GetTable(RecMTNA_IF_POHeaders);
         if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF POHeader Process Insert', RecMTNA_IF_POLines.Plant, Format(RecMTNA_IF_POLines."Entry No."),
-            RecMTNA_IF_POLines."Process start datetime", ErrorMessageText, pagMTNA_IF_POHeadersErr.Caption, pagMTNA_IF_POHeadersErr.ObjectId(false), RecRef) then begin
+            RecMTNA_IF_POLines."Process start datetime", ErrorMessageText, pagMTNA_IF_POHeadersErr.Caption, pagMTNA_IF_POHeadersErr.ObjectId(false)) then begin
         end;
     end;
 
