@@ -1,7 +1,7 @@
 table 50018 "MTNA IF Configuration"
 {
     //CS 2025/10/27 Channing.Zhou FDD300 Table for MTNA IF Configuration
-    Caption = 'MTNA IF Email Configuration';
+    Caption = 'MTNA IF Configuration';
 
     fields
     {

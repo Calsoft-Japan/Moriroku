@@ -97,9 +97,7 @@ codeunit 50001 MTNA_IF_CommonProcess
                 ClientType::Current,            // Use current client (Web) context
                 CompanyName(),                  // Company name (exact display name)
                 ObjectType::Page,               // Target object type
-                RealPageId,                     // Page ID
-                RecRef,                         // Optional: record to open (must be set to the right key)
-                true                            // Include current filters in the URL when possible
+                RealPageId                      // Page ID
             );
             exit(Url);
         end
