@@ -40,7 +40,7 @@ codeunit 50018 MTNAIFPurchaseReceivingProcArc
         ErrorRecCount := 0;
         if (HoursNoArc > 0) then begin
             filteringDT := CUCommProc.CalcDateTimePlusHours(CurrentDateTime(), -HoursNoArc);
-            RecMTNA_IF_PurchaseReceiving.SetFilter("Processed datetime", '>=%1', filteringDT);
+            RecMTNA_IF_PurchaseReceiving.SetFilter("Processed datetime", '<=%1', filteringDT);
         end;
         if RecMTNA_IF_PurchaseReceiving.FindFirst() then begin
             repeat

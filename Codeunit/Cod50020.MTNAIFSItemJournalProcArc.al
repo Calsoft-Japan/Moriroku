@@ -40,7 +40,7 @@ codeunit 50020 MTNAIFItemJournalProcArc
         ErrorRecCount := 0;
         if (HoursNoArc > 0) then begin
             filteringDT := CUCommProc.CalcDateTimePlusHours(CurrentDateTime(), -HoursNoArc);
-            RecMTNA_IF_ItemJournal.SetFilter("Processed datetime", '>=%1', filteringDT);
+            RecMTNA_IF_ItemJournal.SetFilter("Processed datetime", '<=%1', filteringDT);
         end;
         if RecMTNA_IF_ItemJournal.FindFirst() then begin
             repeat

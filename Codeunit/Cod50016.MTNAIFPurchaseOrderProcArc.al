@@ -41,14 +41,13 @@ codeunit 50016 MTNAIFPurchaseOrderProcArc
         ErrorRecCount := 0;
         if (HoursNoArc > 0) then begin
             filteringDT := CUCommProc.CalcDateTimePlusHours(CurrentDateTime(), -HoursNoArc);
-            RecMTNA_IF_POHeaders.SetFilter("Processed datetime", '>=%1', filteringDT);
+            RecMTNA_IF_POHeaders.SetFilter("Processed datetime", '<=%1', filteringDT);
         end;
         if RecMTNA_IF_POHeaders.FindFirst() then begin
             repeat
                 RecMTNA_IF_POHeadersArchive.Init();
                 RecMTNA_IF_POHeadersArchive.TransferFields(RecMTNA_IF_POHeaders);
                 RecMTNA_IF_POHeadersArchive.Insert(true);
-
                 RecMTNA_IF_POLines.Reset();
                 RecMTNA_IF_POLines.SetRange("Header Entry No.", RecMTNA_IF_POHeaders."Entry No.");
                 if RecMTNA_IF_POLines.FindFirst() then begin
