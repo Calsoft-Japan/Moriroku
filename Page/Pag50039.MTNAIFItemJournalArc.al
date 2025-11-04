@@ -140,21 +140,21 @@ page 50039 MTNA_IF_ItemJournalArc
 
                 trigger OnAction()
                 var
-                    RecSelectedItemJournal: Record "MTNA_IF_ItemJournal";
+                    RecSelectedItemJournalAchive: Record "MTNA_IF_ItemJournalArchive";
                 begin
-                    RecSelectedItemJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedItemJournal);
-                    if (RecSelectedItemJournal.IsEmpty() = false) And (RecSelectedItemJournal.FindFirst()) then begin
-                        RecSelectedItemJournal.SetFilter(Status, '<> %1', RecSelectedItemJournal.Status::Completed);
-                        if (RecSelectedItemJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedItemJournal.Status::Completed) + ''' status.');
+                    RecSelectedItemJournalAchive.Reset();
+                    CurrPage.SetSelectionFilter(RecSelectedItemJournalAchive);
+                    if (RecSelectedItemJournalAchive.IsEmpty() = false) And (RecSelectedItemJournalAchive.FindFirst()) then begin
+                        RecSelectedItemJournalAchive.SetFilter(Status, '<> %1', RecSelectedItemJournalAchive.Status::Completed);
+                        if (RecSelectedItemJournalAchive.FindFirst()) then begin
+                            Message('Please only select the records with ''' + Format(RecSelectedItemJournalAchive.Status::Completed) + ''' status.');
                             exit;
                         end
                         else if Confirm('Go ahead and delete?') = true then begin
-                            RecSelectedItemJournal.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedItemJournal);
-                            if RecSelectedItemJournal.FindFirst() then begin
-                                RecSelectedItemJournal.DeleteAll();
+                            RecSelectedItemJournalAchive.Reset();
+                            CurrPage.SetSelectionFilter(RecSelectedItemJournalAchive);
+                            if RecSelectedItemJournalAchive.FindFirst() then begin
+                                RecSelectedItemJournalAchive.DeleteAll();
                                 Message('Deleted successfuly.');
                             end;
                         end;
