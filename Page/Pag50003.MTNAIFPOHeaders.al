@@ -144,10 +144,6 @@ page 50003 MTNA_IF_POHeaders
             {
                 Caption = 'Process';
 
-                actionref("Rerun Process"; Rerun)
-                {
-                }
-
                 actionref("Delete Process"; Delete)
                 {
                 }
@@ -185,54 +181,6 @@ page 50003 MTNA_IF_POHeaders
                                 end;
                                 RecSelectedPOHeader.DeleteAll();
                                 Message('Deleted successfuly.');
-                            end;
-                        end;
-                    end;
-                end;
-            }
-
-            action("Rerun")
-            {
-                ApplicationArea = All;
-                Image = Process;
-                ToolTip = 'Keeping temporary for unit testing';
-                trigger OnAction()
-                var
-                    RecSelectedPOHeader: Record "MTNA_IF_POHeaders";
-                    CuMTNAIFPurchaseOrderProcess: Codeunit "MTNAIFPurchaseOrderProcess";
-                    ErrorRecCount: Integer;
-                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
-                    MaxProcCount: Integer;
-                begin
-                    MaxProcCount := 0;
-                    RecMTNAIFConfiguration.Reset();
-                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase order");
-                    if RecMTNAIFConfiguration.FindFirst() then begin
-                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
-                    end;
-                    RecSelectedPOHeader.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedPOHeader);
-                    if (RecSelectedPOHeader.IsEmpty() = false) And (RecSelectedPOHeader.FindFirst()) then begin
-                        RecSelectedPOHeader.SetFilter(Status, '<> %1', RecSelectedPOHeader.Status::Ready);
-                        if (RecSelectedPOHeader.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedPOHeader.Status::Ready) + ''' status.');
-                            exit;
-                        end
-                        else if Confirm('Re-run the interface program?') = true then begin
-                            RecSelectedPOHeader.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedPOHeader);
-                            if RecSelectedPOHeader.FindFirst() then begin
-                                if CuMTNAIFPurchaseOrderProcess.ProcessPurchaseOrderData(RecSelectedPOHeader, MaxProcCount, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
                             end;
                         end;
                     end;

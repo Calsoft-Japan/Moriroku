@@ -130,10 +130,6 @@ page 50013 MTNA_IF_ItemJournal
                 actionref("Delete Process"; Delete)
                 {
                 }
-
-                actionref("Rerun Process"; Rerun)
-                {
-                }
             }
         }
         area(Processing)
@@ -161,53 +157,6 @@ page 50013 MTNA_IF_ItemJournal
                             if RecSelectedItemJournal.FindFirst() then begin
                                 RecSelectedItemJournal.DeleteAll();
                                 Message('Deleted successfuly.');
-                            end;
-                        end;
-                    end;
-                end;
-            }
-
-            action("Rerun")
-            {
-                ApplicationArea = All;
-                Image = Process;
-                trigger OnAction()
-                var
-                    RecSelectedItemJournal: Record "MTNA_IF_ItemJournal";
-                    CuMTNAIFItemJournalProcess: Codeunit "MTNAIFItemJournalProcess";
-                    ErrorRecCount: Integer;
-                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
-                    MaxProcCount: Integer;
-                begin
-                    MaxProcCount := 0;
-                    RecMTNAIFConfiguration.Reset();
-                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Item journal");
-                    if RecMTNAIFConfiguration.FindFirst() then begin
-                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
-                    end;
-                    RecSelectedItemJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedItemJournal);
-                    if (RecSelectedItemJournal.IsEmpty() = false) And (RecSelectedItemJournal.FindFirst()) then begin
-                        RecSelectedItemJournal.SetFilter(Status, '<> %1', RecSelectedItemJournal.Status::Ready);
-                        if (RecSelectedItemJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedItemJournal.Status::Ready) + ''' status.');
-                            exit;
-                        end
-                        else if Confirm('Re-run the interface program?') = true then begin
-                            RecSelectedItemJournal.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedItemJournal);
-                            if RecSelectedItemJournal.FindFirst() then begin
-                                if CuMTNAIFItemJournalProcess.ProcessItemJournalData(RecSelectedItemJournal, MaxProcCount, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
                             end;
                         end;
                     end;

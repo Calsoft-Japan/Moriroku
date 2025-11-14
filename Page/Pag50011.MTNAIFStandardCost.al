@@ -84,10 +84,6 @@ page 50011 MTNA_IF_StandardCost
                 actionref("Delete Process"; Delete)
                 {
                 }
-
-                actionref("Rerun Process"; Rerun)
-                {
-                }
             }
         }
         area(Processing)
@@ -115,54 +111,6 @@ page 50011 MTNA_IF_StandardCost
                             if RecSelectedStandardCost.FindFirst() then begin
                                 RecSelectedStandardCost.DeleteAll();
                                 Message('Deleted successfuly.');
-                            end;
-                        end;
-                    end;
-                end;
-            }
-
-            action("Rerun")
-            {
-                ApplicationArea = All;
-                Image = Process;
-                ToolTip = 'Keeping temporary for unit testing';
-                trigger OnAction()
-                var
-                    RecSelectedStandardCost: Record "MTNA_IF_StandardCost";
-                    CuMTNAIFStandardCostProcess: Codeunit "MTNAIFStandardCostProcess";
-                    ErrorRecCount: Integer;
-                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
-                    MaxProcCount: Integer;
-                begin
-                    MaxProcCount := 0;
-                    RecMTNAIFConfiguration.Reset();
-                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Standard cost");
-                    if RecMTNAIFConfiguration.FindFirst() then begin
-                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
-                    end;
-                    RecSelectedStandardCost.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedStandardCost);
-                    if (RecSelectedStandardCost.IsEmpty() = false) And (RecSelectedStandardCost.FindFirst()) then begin
-                        RecSelectedStandardCost.SetFilter(Status, '<> %1', RecSelectedStandardCost.Status::Ready);
-                        if (RecSelectedStandardCost.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedStandardCost.Status::Ready) + ''' status.');
-                            exit;
-                        end
-                        else if Confirm('Re-run the interface program?') = true then begin
-                            RecSelectedStandardCost.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedStandardCost);
-                            if RecSelectedStandardCost.FindFirst() then begin
-                                if CuMTNAIFStandardCostProcess.ProcessStandardCostData(RecSelectedStandardCost, MaxProcCount, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
                             end;
                         end;
                     end;

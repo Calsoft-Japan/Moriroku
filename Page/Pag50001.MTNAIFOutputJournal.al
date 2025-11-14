@@ -139,10 +139,6 @@ page 50001 MTNA_IF_OutputJournal
                 actionref("Delete Process"; Delete)
                 {
                 }
-
-                actionref("Rerun Process"; Rerun)
-                {
-                }
             }
         }
         area(Processing)
@@ -171,55 +167,6 @@ page 50001 MTNA_IF_OutputJournal
                             if RecSelectedOutputJournal.FindFirst() then begin
                                 RecSelectedOutputJournal.DeleteAll();
                                 Message('Deleted successfuly.');
-                            end;
-                        end;
-                    end;
-                end;
-            }
-
-            action("Rerun")
-            {
-                ApplicationArea = All;
-                Image = Process;
-                ToolTip = 'Keeping temporary for unit testing';
-                //Enabled = ReRunEnabled; //Control the button enabled by the selected records' status column
-                trigger OnAction()
-                var
-                    RecSelectedOutputJournal: Record "MTNA_IF_OutputJournal";
-                    CuMTNAIFOutputJournalProcess: Codeunit "MTNAIFOutputJournalProcess";
-                    ErrorRecCount: Integer;
-                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
-                    MaxProcCount: Integer;
-                begin
-                    MaxProcCount := 0;
-                    RecMTNAIFConfiguration.Reset();
-                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Output journal");
-                    if RecMTNAIFConfiguration.FindFirst() then begin
-                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
-                    end;
-                    RecSelectedOutputJournal.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                    if (RecSelectedOutputJournal.IsEmpty() = false) And (RecSelectedOutputJournal.FindFirst()) then begin
-                        RecSelectedOutputJournal.SetFilter(Status, '<> %1', RecSelectedOutputJournal.Status::Ready);
-                        if (RecSelectedOutputJournal.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedOutputJournal.Status::Ready) + ''' status.');
-                            exit;
-                        end
-                        else if Confirm('Re-run the interface program?') = true then begin
-                            RecSelectedOutputJournal.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedOutputJournal);
-                            if RecSelectedOutputJournal.FindFirst() then begin
-                                if CuMTNAIFOutputJournalProcess.ProcessOutputJournalData(RecSelectedOutputJournal, MaxProcCount, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
                             end;
                         end;
                     end;

@@ -109,10 +109,6 @@ page 50009 MTNA_IF_PurchaseReceiving
                 actionref("Delete Process"; Delete)
                 {
                 }
-
-                actionref("Rerun Process"; Rerun)
-                {
-                }
             }
         }
         area(Processing)
@@ -140,55 +136,6 @@ page 50009 MTNA_IF_PurchaseReceiving
                             if RecSelectedPurchaseReceiving.FindFirst() then begin
                                 RecSelectedPurchaseReceiving.DeleteAll();
                                 Message('Deleted successfuly.');
-                            end;
-                        end;
-                    end;
-                end;
-            }
-
-            action("Rerun")
-            {
-                ApplicationArea = All;
-                Image = Process;
-                ToolTip = 'Keeping temporary for unit testing';
-
-                trigger OnAction()
-                var
-                    RecSelectedPurchaseReceiving: Record "MTNA_IF_PurchaseReceiving";
-                    CuMTNAIFPurchaseReceivingProcess: Codeunit "MTNAIFPurchaseReceivingProcess";
-                    ErrorRecCount: Integer;
-                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
-                    MaxProcCount: Integer;
-                begin
-                    MaxProcCount := 0;
-                    RecMTNAIFConfiguration.Reset();
-                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase receiving");
-                    if RecMTNAIFConfiguration.FindFirst() then begin
-                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
-                    end;
-                    RecSelectedPurchaseReceiving.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
-                    if (RecSelectedPurchaseReceiving.IsEmpty() = false) And (RecSelectedPurchaseReceiving.FindFirst()) then begin
-                        RecSelectedPurchaseReceiving.SetFilter(Status, '<> %1', RecSelectedPurchaseReceiving.Status::Ready);
-                        if (RecSelectedPurchaseReceiving.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedPurchaseReceiving.Status::Ready) + ''' status.');
-                            exit;
-                        end
-                        else if Confirm('Re-run the interface program?') = true then begin
-                            RecSelectedPurchaseReceiving.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedPurchaseReceiving);
-                            if RecSelectedPurchaseReceiving.FindFirst() then begin
-                                if CuMTNAIFPurchaseReceivingProcess.ProcessPurchaseReceivingData(RecSelectedPurchaseReceiving, MaxProcCount, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error(s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
                             end;
                         end;
                     end;

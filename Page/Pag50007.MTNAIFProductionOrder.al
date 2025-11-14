@@ -119,10 +119,6 @@ page 50007 MTNA_IF_ProductionOrder
                 actionref("Delete Process"; Delete)
                 {
                 }
-
-                actionref("Rerun Process"; Rerun)
-                {
-                }
             }
         }
         area(Processing)
@@ -150,55 +146,6 @@ page 50007 MTNA_IF_ProductionOrder
                             if RecSelectedProductionOrder.FindFirst() then begin
                                 RecSelectedProductionOrder.DeleteAll();
                                 Message('Deleted successfuly.');
-                            end;
-                        end;
-                    end;
-                end;
-            }
-
-            action("Rerun")
-            {
-                ApplicationArea = All;
-                Image = Process;
-                ToolTip = 'Keeping temporary for unit testing';
-
-                trigger OnAction()
-                var
-                    RecSelectedProductionOrder: Record "MTNA_IF_ProductionOrder";
-                    CuMTNAIFProductionOrderProcess: Codeunit "MTNAIFProductionOrderProcess";
-                    ErrorRecCount: Integer;
-                    RecMTNAIFConfiguration: record "MTNA IF Configuration";
-                    MaxProcCount: Integer;
-                begin
-                    MaxProcCount := 0;
-                    RecMTNAIFConfiguration.Reset();
-                    RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Production order");
-                    if RecMTNAIFConfiguration.FindFirst() then begin
-                        MaxProcCount := RecMTNAIFConfiguration."Max. records to process";
-                    end;
-                    RecSelectedProductionOrder.Reset();
-                    CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
-                    if (RecSelectedProductionOrder.IsEmpty() = false) And (RecSelectedProductionOrder.FindFirst()) then begin
-                        RecSelectedProductionOrder.SetFilter(Status, '<> %1', RecSelectedProductionOrder.Status::Ready);
-                        if (RecSelectedProductionOrder.FindFirst()) then begin
-                            Message('Please only select the records with ''' + Format(RecSelectedProductionOrder.Status::Ready) + ''' status.');
-                            exit;
-                        end
-                        else if Confirm('Re-run the interface program?') = true then begin
-                            RecSelectedProductionOrder.Reset();
-                            CurrPage.SetSelectionFilter(RecSelectedProductionOrder);
-                            if RecSelectedProductionOrder.FindFirst() then begin
-                                if CuMTNAIFProductionOrderProcess.ProcessProductionOrderData(RecSelectedProductionOrder, MaxProcCount, ErrorRecCount) then begin
-                                    if ErrorRecCount = 0 then begin
-                                        Message('All selected records were re-processed.');
-                                    end
-                                    else begin
-                                        Message('Selected records were re-processed with ' + Format(ErrorRecCount) + ' error (s).');
-                                    end;
-                                end
-                                else begin
-                                    Message('Selected records were re-processed with error(s).');
-                                end;
                             end;
                         end;
                     end;
