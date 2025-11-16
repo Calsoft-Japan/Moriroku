@@ -8,7 +8,7 @@ page 50009 MTNA_IF_PurchaseReceiving
     SourceTable = MTNA_IF_PurchaseReceiving;
     SourceTableView = where("Status" = const("MTNA IF Status"::Ready));
     UsageCategory = Administration;
-    DeleteAllowed = true;
+    DeleteAllowed = false;
     InsertAllowed = false;
     ModifyAllowed = true;
 
