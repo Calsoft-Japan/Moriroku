@@ -24,7 +24,7 @@ codeunit 50020 MTNAIFItemJournalProcArc
             RecMTNAIFConfiguration.Reset();
             RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Item journal");
             if RecMTNAIFConfiguration.FindFirst() then begin
-                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                HoursNoArc := RecMTNAIFConfiguration."Hours not to archive";
             end;
             ProcArcItemJournalData(RecMTNA_ItemJournal, HoursNoArc, ErrorRecCount);
         end;

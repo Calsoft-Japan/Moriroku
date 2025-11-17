@@ -17,9 +17,9 @@ table 50018 "MTNA IF Configuration"
         {
             Caption = 'Max. records to process';
         }
-        field(3; "Hours no to acrhive"; Integer)
+        field(3; "Hours not to archive"; Integer)
         {
-            Caption = 'Hours no to acrhive';
+            Caption = 'Hours not to archive';
         }
     }
     keys

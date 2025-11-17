@@ -23,7 +23,7 @@ codeunit 50016 MTNAIFPurchaseOrderProcArc
             RecMTNAIFConfiguration.Reset();
             RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase order");
             if RecMTNAIFConfiguration.FindFirst() then begin
-                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                HoursNoArc := RecMTNAIFConfiguration."Hours not to archive";
             end;
             ProcArcPurchaseOrderData(RecMTNA_IF_POHeader, HoursNoArc, ErrorRecCount);
         end;

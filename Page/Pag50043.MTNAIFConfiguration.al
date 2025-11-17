@@ -19,7 +19,7 @@ page 50043 "MTNA IF Configuration"
                 field("Max. records to process"; Rec."Max. records to process")
                 {
                 }
-                field("Hours no to acrhive"; Rec."Hours no to acrhive")
+                field("Hours not to archive"; Rec."Hours not to archive")
                 {
                 }
             }

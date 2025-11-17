@@ -24,7 +24,7 @@ codeunit 50017 MTNAIFProductionOrderProcArc
             RecMTNAIFConfiguration.Reset();
             RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Production order");
             if RecMTNAIFConfiguration.FindFirst() then begin
-                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                HoursNoArc := RecMTNAIFConfiguration."Hours not to archive";
             end;
             ProcArcProductionOrderData(RecMTNA_IF_ProductionOrder, HoursNoArc, ErrorRecCount);
         end;

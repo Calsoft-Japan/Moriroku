@@ -24,7 +24,7 @@ codeunit 50021 MTNAIFItemReclasJournalProcArc
             RecMTNAIFConfiguration.Reset();
             RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Item reclass journal");
             if RecMTNAIFConfiguration.FindFirst() then begin
-                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                HoursNoArc := RecMTNAIFConfiguration."Hours not to archive";
             end;
             ProcArcItemReclassJournalData(RecMTNA_IF_ItemReclassJournal, HoursNoArc, ErrorRecCount);
         end;

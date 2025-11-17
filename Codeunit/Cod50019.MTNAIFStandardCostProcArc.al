@@ -24,7 +24,7 @@ codeunit 50019 MTNAIFStandardCostProcArc
             RecMTNAIFConfiguration.Reset();
             RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Standard cost");
             if RecMTNAIFConfiguration.FindFirst() then begin
-                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                HoursNoArc := RecMTNAIFConfiguration."Hours not to archive";
             end;
             ProcArcStandardCostData(RecMTNA_IF_StandardCost, HoursNoArc, ErrorRecCount);
         end;

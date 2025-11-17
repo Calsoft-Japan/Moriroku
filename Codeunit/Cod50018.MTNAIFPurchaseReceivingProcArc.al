@@ -24,7 +24,7 @@ codeunit 50018 MTNAIFPurchaseReceivingProcArc
             RecMTNAIFConfiguration.Reset();
             RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Purchase receiving");
             if RecMTNAIFConfiguration.FindFirst() then begin
-                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                HoursNoArc := RecMTNAIFConfiguration."Hours not to archive";
             end;
             ProcArcPurchaseReceivingData(RecMTNA_IF_PurchaseReceiving, HoursNoArc, ErrorRecCount);
         end;

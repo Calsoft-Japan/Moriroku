@@ -24,7 +24,7 @@ codeunit 50015 MTNAIFOutputJournalProcArc
             RecMTNAIFConfiguration.Reset();
             RecMTNAIFConfiguration.SetRange("Batch job", RecMTNAIFConfiguration."Batch job"::"Output journal");
             if RecMTNAIFConfiguration.FindFirst() then begin
-                HoursNoArc := RecMTNAIFConfiguration."Hours no to acrhive";
+                HoursNoArc := RecMTNAIFConfiguration."Hours not to archive";
             end;
             ProcArcOutputJournalData(RecMTNA_IF_OutputJournal, HoursNoArc, ErrorRecCount);
         end;
