@@ -209,12 +209,18 @@ report 50000 "Finish multiple production ord"
         CU_EmailMessage: Codeunit "Email Message";
         CuEmailAccount: Codeunit "Email Account";
         TempCuEmailAccount: record "Email Account" temporary;
-        SubjectLbl: Label 'Job Queue [Finish Mulitple Production Orders] Failed in Business Central';
-        BodyLblDeptHod: Label 'Hi Team, <br> <br> This is to inform you in Business Central some of the job queue failed. <br> Kindly view the failed job queue %1 this by visiting <a href="%2"> </a> here. <br><a href="%3"> </a>';
+        //SubjectLbl: Label 'Job Queue [Finish Mulitple Production Orders] Failed in Business Central';
+        //BodyLblDeptHod: Label 'Hi Team, <br> <br> This is to inform you in Business Central some of the job queue failed. <br> Kindly view the failed job queue %1 this by visiting <a href="%2"> </a> here. <br><a href="%3"> </a>';
+        SubjectLbl: Label 'Job Queue [%1] Failed in Business Central';
+        BodyLblDeptHod: Label 'Job Queue [%1] failed due to an error.<br>Environment: %2<br>Company: %3<br>Plant: %4<br>Order: %5<br>Details: %6<br><br> <br>Next step: <br>Please confirm the status and posted transactions of the production order in Released Production order screen. <br>Released Production Order';
         PRDLink, AppLink : Text;
         CompanyInfo: Record "Company Information";
         MTNA_Email: Record "MTNA IF Email Notification";
         Location: Record Location;
+        EnvInfo: CodeUnit "Environment Information";
+        Plants: Text;
+        JobQueue: Record "Job Queue Entry";
+        JBQName: Text;
     begin
         Clear(AppLink);
         /*Clear(Rec_UserSetup);
@@ -235,6 +241,8 @@ report 50000 "Finish multiple production ord"
         Location.Reset();
         Location.SetRange(Code, LocCode);
         if Location.FindFirst() then begin
+            Plants := Format(Location.Plant);
+
             MTNA_Email.Reset();
 
             if Location.Plant = Location.Plant::Nil then
@@ -278,11 +286,19 @@ report 50000 "Finish multiple production ord"
         PRDLink := GetUrl(ClientType::Web, CompanyName, ObjectType::Page, Page::"Released Production Order", ProductionOrder, true);
         AppLink := GetUrl(ClientType::Web, CompanyName, ObjectType::Page, Page::"Job Queue Log Entries", JobQueueLog, true);
 
+        JobQueue.Reset();
+        JobQueue.SetRange("Object Type to Run", JobQueue."Object Type to Run"::Report);
+        JobQueue.SetRange("Object ID to Run", Report::"Finish multiple production ord");
+        if JobQueue.FindFirst() then
+            JBQName := JobQueue.Description;//"Object Caption to Run";
+
         if MailingList.Count <> 0 then begin
             Clear(CU_EmailMessage);
             CU_EmailMessage.Create(MailingList,
-                                    StrSubstNo(SubjectLbl),
-                                    StrSubstNo(BodyLblDeptHod, Details, AppLink, PRDLink), true);
+                                    StrSubstNo(SubjectLbl, JBQName),
+                                    StrSubstNo(BodyLblDeptHod, JBQName, EnvInfo.GetEnvironmentName(), CompanyName, Plants, ProductionOrder."No.", Details), true);
+            //StrSubstNo(SubjectLbl),
+            //StrSubstNo(BodyLblDeptHod, Details, AppLink, PRDLink), true);
 
             CuEmailAccount.GetAllAccounts(TempCuEmailAccount);
             TempCuEmailAccount.Reset;
