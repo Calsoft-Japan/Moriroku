@@ -2,6 +2,7 @@ codeunit 50002 MTNAIFOutputJournalProcess
 {
     //CS 2024/8/13 Channing.Zhou FDD301 CodeUnit for MTNA IF Output Journal Process
     //CS 2025/10/21 Channing.Zhou FDD300 V7 Change the notification email contents, add error information page url.
+    //CS 2025/12/25 Channing.Zhou FDD301 V10 Change the process flow of the scrap quantity
 
     trigger OnRun()
     var
@@ -36,11 +37,18 @@ codeunit 50002 MTNAIFOutputJournalProcess
     procedure ProcessOutputJournalData(var RecMTNA_IF_OutputJournal: Record "MTNA_IF_OutputJournal"; MaxProcCount: Integer; var ErrorRecCount: Integer)
     var
         RecOutputJournalLine: Record "Item Journal Line";
+        RecItem: Record Item;
+        RecItemUOM: Record "Item Unit of Measure";
+        RecScrapMNTAIFItemJournal: Record MTNA_IF_ItemJournal;
         ErrorMessageText: Text;
         CuMTNAIFCommonProcess: CodeUnit "MTNA_IF_CommonProcess";
         pagMTNA_IF_OutputJournalErr: Page "MTNA_IF_OutputJournalErr";
         proccessedCount: Integer;
     begin
+        RecScrapMNTAIFItemJournal.Reset();
+        if RecScrapMNTAIFItemJournal.Get(0) then begin
+            RecScrapMNTAIFItemJournal.Delete();
+        end;
         ErrorRecCount := 0;
         proccessedCount := 0;
         if RecMTNA_IF_OutputJournal.FindFirst() then begin
@@ -60,6 +68,25 @@ codeunit 50002 MTNAIFOutputJournalProcess
                         if CODEUNIT.Run(CODEUNIT::"Item Jnl.-Post Batch", RecOutputJournalLine) then begin
                             RecMTNA_IF_OutputJournal.Status := RecMTNA_IF_OutputJournal.Status::Completed;
                             RecMTNA_IF_OutputJournal.Modify();
+                            //Insert the MTNA Item Journal record only after the Item Output Journal posting success.
+                            if RecMTNA_IF_OutputJournal."Scrap Quantity" > 0 then begin
+                                RecItem.Get(RecMTNA_IF_OutputJournal."Item No.");
+                                RecScrapMNTAIFItemJournal.Reset();
+                                RecScrapMNTAIFItemJournal.Init();
+                                RecScrapMNTAIFItemJournal.Plant := RecMTNA_IF_OutputJournal.Plant;
+                                RecScrapMNTAIFItemJournal.Status := RecScrapMNTAIFItemJournal.Status::Ready;
+                                RecScrapMNTAIFItemJournal."Journal Batch Name" := 'SCRAP';
+                                RecScrapMNTAIFItemJournal."Entry Type" := RecScrapMNTAIFItemJournal."Entry Type"::Negative;
+                                RecScrapMNTAIFItemJournal."Posting date" := RecMTNA_IF_OutputJournal."Posting date";
+                                RecScrapMNTAIFItemJournal."Item No." := RecMTNA_IF_OutputJournal."Item No.";
+                                RecScrapMNTAIFItemJournal."Primary record ID" := RecMTNA_IF_OutputJournal."Primary record ID";
+                                RecScrapMNTAIFItemJournal."Location Code" := RecMTNA_IF_OutputJournal."Location Code";
+                                RecScrapMNTAIFItemJournal.Quantity := RecMTNA_IF_OutputJournal."Scrap Quantity";
+                                RecScrapMNTAIFItemJournal."Unit of Measure Code" := RecItem."Base Unit of Measure";
+                                RecScrapMNTAIFItemJournal."Gen Bus Posting Group" := 'SCRAP';
+                                RecScrapMNTAIFItemJournal."Created datetime" := RecMTNA_IF_OutputJournal."Created datetime";
+                                RecScrapMNTAIFItemJournal.Insert(true);
+                            end;
                         end
                         else begin
                             ErrorMessageText := GetLastErrorText();
@@ -165,16 +192,16 @@ codeunit 50002 MTNAIFOutputJournalProcess
             RecOutputJournalLine."Document No." := RecMTNA_IF_OutputJournal."Order No.";
             RecOutputJournalLine."Description" := RecMTNA_IF_OutputJournal."Primary record ID";
             RecOutputJournalLine."Location Code" := RecMTNA_IF_OutputJournal."Location Code";
-            RecOutputJournalLine."Quantity" := RecMTNA_IF_OutputJournal."Output Quantity";
+            RecOutputJournalLine."Quantity" := RecMTNA_IF_OutputJournal."Output Quantity" + RecMTNA_IF_OutputJournal."Scrap Quantity";
             RecOutputJournalLine."Source Code" := 'POINOUTJNL';
             RecOutputJournalLine."Source Type" := RecOutputJournalLine."Source Type"::Item;
             RecOutputJournalLine."Document Date" := RecMTNA_IF_OutputJournal."Posting date";
             RecOutputJournalLine."Order Line No." := IntProdOrderLineNo;
             RecOutputJournalLine."Bin Code" := RecMTNA_IF_OutputJournal."Bin Code";
             RecOutputJournalLine."Setup Time" := RecMTNA_IF_OutputJournal."Setup Time";
-            RecOutputJournalLine."Output Quantity" := RecMTNA_IF_OutputJournal."Output Quantity";
-            RecOutputJournalLine."Scrap Quantity" := RecMTNA_IF_OutputJournal."Scrap Quantity";
-            RecOutputJournalLine."Scrap Code" := RecMTNA_IF_OutputJournal."Scrap Code";
+            RecOutputJournalLine."Output Quantity" := RecMTNA_IF_OutputJournal."Output Quantity" + RecMTNA_IF_OutputJournal."Scrap Quantity";
+            //RecOutputJournalLine."Scrap Quantity" := RecMTNA_IF_OutputJournal."Scrap Quantity";
+            //RecOutputJournalLine."Scrap Code" := RecMTNA_IF_OutputJournal."Scrap Code";
             RecOutputJournalLine."Work Shift Code" := RecMTNA_IF_OutputJournal."Work Shift Code";
             RecOutputJournalLine.Validate("Location Code");
             RecOutputJournalLine.Validate("Quantity");
