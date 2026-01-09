@@ -93,10 +93,12 @@ codeunit 50001 MTNA_IF_CommonProcess
     begin
         if GetPageId(PageId, RealPageId) then begin
             Url := System.GetUrl(
-                ClientType::Current,            // Use current client (Web) context
-                CompanyName(),                  // Company name (exact display name)
-                ObjectType::Page,               // Target object type
-                RealPageId                      // Page ID
+                //ClientType::Current,            // Use current client (Web) context
+                //Use the Web directly in Job Queue to prevent the URL been blank
+                ClientType::Web,                  // Use current client (Web) context
+                CompanyName(),                    // Company name (exact display name)
+                ObjectType::Page,                 // Target object type
+                RealPageId                        // Page ID
             );
             exit(Url);
         end
