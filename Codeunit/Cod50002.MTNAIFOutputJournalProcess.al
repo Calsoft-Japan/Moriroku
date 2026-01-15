@@ -123,10 +123,6 @@ codeunit 50002 MTNAIFOutputJournalProcess
                     break;
                 end;
             until (RecMTNA_IF_OutputJournal.Next() = 0);
-
-            if CuMTNAIFCommonProcess.SendNotificationEmail('MTNA IF Output Journal Process Post', RecMTNA_IF_OutputJournal.Plant, Format(RecMTNA_IF_OutputJournal."Entry No."),
-                RecMTNA_IF_OutputJournal."Process start datetime", ErrorMessageText, pagMTNA_IF_OutputJournalErr.Caption, pagMTNA_IF_OutputJournalErr.ObjectId(false)) then begin
-            end;
         end;
     end;
 
