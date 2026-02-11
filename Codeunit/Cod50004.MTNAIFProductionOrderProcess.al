@@ -54,10 +54,26 @@ codeunit 50004 MTNAIFProductionOrderProcess
                     RecProductionOrder.Reset();
                     RecProductionOrder.SetRange("No.", RecMTNA_IF_ProductionOrder."Production Order No.");
                     if RecProductionOrder.FindFirst() then begin
-                        /*The following logic do not based on the FDD, please check the FDD for how to do if there is already a existsed Production Order*/
-                        ErrorMessageText := RecProductionOrder."No." + ' Production Order No.  is existed.';
-                        ProductionOrderErrorMessage(RecMTNA_IF_ProductionOrder, ErrorMessageText);
-                        ErrorRecCount += 1;
+                        /*01/11/2026 Channing.Zhou change the logic for existed production order based on FDD V7.0*/
+                        if RecProductionOrder.Status = RecProductionOrder.Status::Finished then begin
+                            ErrorMessageText := 'The Production Order for No.' + RecProductionOrder."No." + ' is finished.';
+                            ProductionOrderErrorMessage(RecMTNA_IF_ProductionOrder, ErrorMessageText);
+                            ErrorRecCount += 1;
+                        end
+                        else begin
+                            if UpdateProductionOrder(RecMTNA_IF_ProductionOrder, RecProductionOrder) then begin
+                                RecMTNA_IF_ProductionOrder.Status := RecMTNA_IF_ProductionOrder.Status::Completed;
+                                RecMTNA_IF_ProductionOrder.Modify();
+                            end
+                            else begin
+                                ErrorMessageText := GetLastErrorText();
+                                RecMTNA_IF_ProductionOrder.Status := RecMTNA_IF_ProductionOrder.Status::Error;
+                                RecMTNA_IF_ProductionOrder.SetErrormessage(ErrorMessageText);
+                                RecMTNA_IF_ProductionOrder.Modify();
+                                ProductionOrderErrorMessage(RecMTNA_IF_ProductionOrder, ErrorMessageText);
+                                ErrorRecCount += 1;
+                            end;
+                        end;
                     end
                     else begin
                         RecProductionOrder.Reset();
@@ -137,6 +153,39 @@ codeunit 50004 MTNAIFProductionOrderProcess
                 NoSeriesLine."Last No. Used" := RecMTNA_IF_ProductionOrder."Production Order No.";
                 NoSeriesLine.Modify();
             end;
+        end;
+    end;
+
+    [TryFunction]
+    local procedure UpdateProductionOrder(RecMTNA_IF_ProductionOrder: Record "MTNA_IF_ProductionOrder"; var RecProductionOrder: Record "Production Order")
+    var
+        RecProdOrderLine: Record "Prod. Order Line";
+    begin
+        RecProductionOrder.Validate(Quantity, RecMTNA_IF_ProductionOrder.Quantity);
+        RecProductionOrder."APS Starting Date" := RecMTNA_IF_ProductionOrder."APS Starting Date";
+        RecProductionOrder."APS Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
+        RecProductionOrder."APS Ending Date" := RecMTNA_IF_ProductionOrder."APS Ending Date";
+        RecProductionOrder."APS Ending Time" := RecMTNA_IF_ProductionOrder."APS Ending Time";
+
+        RecProductionOrder."Starting Date" := RecMTNA_IF_ProductionOrder."APS Starting Date";
+        RecProductionOrder."Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
+        RecProductionOrder."Ending Date" := RecMTNA_IF_ProductionOrder."APS Ending Date";
+        RecProductionOrder."Ending Time" := RecMTNA_IF_ProductionOrder."APS Ending Time";
+        RecProductionOrder.Modify(true);
+        RecProdOrderLine.Reset();
+        RecProdOrderLine.SetRange("Prod. Order No.", RecProductionOrder."No.");
+        if RecProdOrderLine.FindFirst() then begin
+            RecProdOrderLine.Validate(Quantity, RecMTNA_IF_ProductionOrder.Quantity);
+            RecProdOrderLine."APS Ending Date" := RecMTNA_IF_ProductionOrder."APS Ending Date";
+            RecProdOrderLine."APS Ending Time" := RecMTNA_IF_ProductionOrder."APS Ending Time";
+            RecProdOrderLine."APS Starting Date" := RecMTNA_IF_ProductionOrder."APS Starting Date";
+            RecProdOrderLine."APS Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
+            RecProdOrderLine.Modify(true);
+            UpdateAPS(RecMTNA_IF_ProductionOrder);
+        end
+        else begin
+            Error('There is no corresponding Production Order Line for No. ' + RecProductionOrder."No.");
+            exit;
         end;
     end;
 
