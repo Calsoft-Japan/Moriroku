@@ -160,6 +160,7 @@ codeunit 50004 MTNAIFProductionOrderProcess
     local procedure UpdateProductionOrder(RecMTNA_IF_ProductionOrder: Record "MTNA_IF_ProductionOrder"; var RecProductionOrder: Record "Production Order")
     var
         RecProdOrderLine: Record "Prod. Order Line";
+        page: page "Released Prod. Order Lines";
     begin
         RecProductionOrder.Validate(Quantity, RecMTNA_IF_ProductionOrder.Quantity);
         RecProductionOrder."APS Starting Date" := RecMTNA_IF_ProductionOrder."APS Starting Date";
@@ -181,7 +182,9 @@ codeunit 50004 MTNAIFProductionOrderProcess
             RecProdOrderLine."APS Starting Date" := RecMTNA_IF_ProductionOrder."APS Starting Date";
             RecProdOrderLine."APS Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
             RecProdOrderLine.Modify(true);
+            RecProdOrderLine.UpdateProdOrderComp(RecProdOrderLine."Qty. per Unit of Measure");
             UpdateAPS(RecMTNA_IF_ProductionOrder);
+            //Commit();
         end
         else begin
             Error('There is no corresponding Production Order Line for No. ' + RecProductionOrder."No.");
