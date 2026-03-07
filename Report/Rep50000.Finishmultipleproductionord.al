@@ -141,10 +141,23 @@ report 50000 "Finish multiple production ord"
     [CommitBehavior(CommitBehavior::Ignore)]
     [TryFunction]
     procedure CHGStatus(PrdOrd: Record "Production Order"; ReqUpdUnitCost: Boolean)
+    var
+        PstDate: Date;
+        ItemLdgEntry: Record "Item Ledger Entry";
     begin
+        PstDate := Today();
+        ItemLdgEntry.Reset();
+        ItemLdgEntry.SetRange("Entry Type", ItemLdgEntry."Entry Type"::Output);
+        ItemLdgEntry.SetRange("Order Type", ItemLdgEntry."Order Type"::Production);
+        ItemLdgEntry.SetRange("Order No.", PrdOrd."No.");//"Document No."
+        ItemLdgEntry.SetCurrentKey("Posting Date");
+        ItemLdgEntry.SetAscending("Posting Date", false);
+        if ItemLdgEntry.FindFirst() then
+            PstDate := ItemLdgEntry."Posting Date";
+
         PrdOrd.Blocked := false;//Update to avoid error while change to finished.
         PrdOrd.Modify();
-        ProdOrderStatusMgt.ChangeProdOrderStatus(PrdOrd, PrdOrd.Status::Finished, Today(), ReqUpdUnitCost);
+        ProdOrderStatusMgt.ChangeProdOrderStatus(PrdOrd, PrdOrd.Status::Finished, PstDate, ReqUpdUnitCost);
     end;
 
     var
@@ -212,7 +225,7 @@ report 50000 "Finish multiple production ord"
         //SubjectLbl: Label 'Job Queue [Finish Mulitple Production Orders] Failed in Business Central';
         //BodyLblDeptHod: Label 'Hi Team, <br> <br> This is to inform you in Business Central some of the job queue failed. <br> Kindly view the failed job queue %1 this by visiting <a href="%2"> </a> here. <br><a href="%3"> </a>';
         SubjectLbl: Label 'Job Queue [%1] Failed in Business Central';
-        BodyLblDeptHod: Label 'Job Queue [%1] failed due to an error.<br>Environment: %2<br>Company: %3<br>Plant: %4<br>Order: %5<br>Details: %6<br><br> <br>Next step: <br>Please confirm the status and posted transactions of the production order in Released Production order screen. <br>Released Production Order';
+        BodyLblDeptHod: Label 'Job Queue [%1] failed due to an error.<br>Environment: %2<br>Company: %3<br>Plant: %4<br>Order: %5<br>Details: %6<br><br> <br>Next step: <br>Please confirm the status and posted transactions of the production order in Released Production order screen. <br><a href="%7"> Released Production Order</a>';
         PRDLink, AppLink : Text;
         CompanyInfo: Record "Company Information";
         MTNA_Email: Record "MTNA IF Email Notification";
@@ -296,7 +309,7 @@ report 50000 "Finish multiple production ord"
             Clear(CU_EmailMessage);
             CU_EmailMessage.Create(MailingList,
                                     StrSubstNo(SubjectLbl, JBQName),
-                                    StrSubstNo(BodyLblDeptHod, JBQName, EnvInfo.GetEnvironmentName(), CompanyName, Plants, ProductionOrder."No.", Details), true);
+                                    StrSubstNo(BodyLblDeptHod, JBQName, EnvInfo.GetEnvironmentName(), CompanyName, Plants, ProductionOrder."No.", Details, PRDLink), true);
             //StrSubstNo(SubjectLbl),
             //StrSubstNo(BodyLblDeptHod, Details, AppLink, PRDLink), true);
 
