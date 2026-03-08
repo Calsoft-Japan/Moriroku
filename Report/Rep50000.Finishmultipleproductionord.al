@@ -34,31 +34,32 @@ report 50000 "Finish multiple production ord"
                 Clear(CurErrText);
 
                 LineError := false;
+                /*Ver 5.0 change the status to Finished even if finished quantity is zero.
                 PrdLine.Reset();
                 PrdLine.SetRange(Status, ProductionOrder.Status);
                 PrdLine.SetRange("Prod. Order No.", ProductionOrder."No.");
                 if PrdLine.FindSet() then
-                    repeat
-                        if PrdLine."Finished Quantity" = 0 then begin
+                    repeat                    
+                    if PrdLine."Finished Quantity" = 0 then begin
+                        LineError := true;
+                        CurErrText := CurErrText + StrSubstNo('%1:  The update has been interrupted to respect the warning.', "No.") + CR + LF;
+                        ErrorText := ErrorText + StrSubstNo('%1:  The update has been interrupted to respect the warning.', "No.") + CR + LF;
+                    end;
+
+                    if not ProdOrderStatusMgt.OutputExists(PrdLine) then begin
+                        if ProdOrderStatusMgt.MatrOrCapConsumpExists(PrdLine) then begin
                             LineError := true;
-                            CurErrText := CurErrText + StrSubstNo('%1:  The update has been interrupted to respect the warning.', "No.") + CR + LF;
-                            ErrorText := ErrorText + StrSubstNo('%1:  The update has been interrupted to respect the warning.', "No.") + CR + LF;
+                            CurErrText := CurErrText + StrSubstNo(Text009, PrdLine."Line No.", ProductionOrder.TableCaption(), PrdLine."Prod. Order No.") + CR + LF;
+                            ErrorText := ErrorText + StrSubstNo(Text009, PrdLine."Line No.", ProductionOrder.TableCaption(), PrdLine."Prod. Order No.") + CR + LF;
                         end;
+                    end;
 
-                        if not ProdOrderStatusMgt.OutputExists(PrdLine) then begin
-                            if ProdOrderStatusMgt.MatrOrCapConsumpExists(PrdLine) then begin
-                                LineError := true;
-                                CurErrText := CurErrText + StrSubstNo(Text009, PrdLine."Line No.", ProductionOrder.TableCaption(), PrdLine."Prod. Order No.") + CR + LF;
-                                ErrorText := ErrorText + StrSubstNo(Text009, PrdLine."Line No.", ProductionOrder.TableCaption(), PrdLine."Prod. Order No.") + CR + LF;
-                            end;
-                        end;
-
-                        if (PrdLine."Finished Quantity" = 0) and (CurErrText.EndsWith('The update has been interrupted to respect the warning.' + CR + LF)) then begin
-                            CurErrText := CurErrText + StrSubstNo(Text004, ProductionOrder.TableCaption(), ProductionOrder."No.") + CR + LF;
-                            ErrorText := ErrorText + StrSubstNo(Text004, ProductionOrder.TableCaption(), ProductionOrder."No.") + CR + LF;
-                        end;
+                    if (PrdLine."Finished Quantity" = 0) and (CurErrText.EndsWith('The update has been interrupted to respect the warning.' + CR + LF)) then begin
+                        CurErrText := CurErrText + StrSubstNo(Text004, ProductionOrder.TableCaption(), ProductionOrder."No.") + CR + LF;
+                        ErrorText := ErrorText + StrSubstNo(Text004, ProductionOrder.TableCaption(), ProductionOrder."No.") + CR + LF;
+                    end;
                     until PrdLine.Next() = 0;
-
+                */
 
                 if not LineError then
                     if (not CHGStatus(ProductionOrder, false)) then begin
