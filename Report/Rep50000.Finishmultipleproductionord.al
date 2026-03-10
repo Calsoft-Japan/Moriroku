@@ -27,39 +27,49 @@ report 50000 "Finish multiple production ord"
                 CurErrText: Text;
                 Text009: Label 'You cannot finish line %1 on %2 %3. It has consumption or capacity posted with no output.';
                 Text004: Label '%1 %2 has not been finished. Some output is still missing. ';
+                PrdOrd: Record "Production Order";
             begin
                 CR := 13;
                 LF := 10;
                 CurTime := CurrentDateTime;
                 Clear(CurErrText);
 
+                CurOrdOutputExists := true;
+
                 LineError := false;
-                /*Ver 5.0 change the status to Finished even if finished quantity is zero.
+
                 PrdLine.Reset();
                 PrdLine.SetRange(Status, ProductionOrder.Status);
                 PrdLine.SetRange("Prod. Order No.", ProductionOrder."No.");
                 if PrdLine.FindSet() then
-                    repeat                    
-                    if PrdLine."Finished Quantity" = 0 then begin
-                        LineError := true;
-                        CurErrText := CurErrText + StrSubstNo('%1:  The update has been interrupted to respect the warning.', "No.") + CR + LF;
-                        ErrorText := ErrorText + StrSubstNo('%1:  The update has been interrupted to respect the warning.', "No.") + CR + LF;
-                    end;
-
-                    if not ProdOrderStatusMgt.OutputExists(PrdLine) then begin
-                        if ProdOrderStatusMgt.MatrOrCapConsumpExists(PrdLine) then begin
+                    repeat
+                        /*Ver 5.0 change the status to Finished even if finished quantity is zero.   
+                        if PrdLine."Finished Quantity" = 0 then begin
                             LineError := true;
-                            CurErrText := CurErrText + StrSubstNo(Text009, PrdLine."Line No.", ProductionOrder.TableCaption(), PrdLine."Prod. Order No.") + CR + LF;
-                            ErrorText := ErrorText + StrSubstNo(Text009, PrdLine."Line No.", ProductionOrder.TableCaption(), PrdLine."Prod. Order No.") + CR + LF;
+                            CurErrText := CurErrText + StrSubstNo('%1:  The update has been interrupted to respect the warning.', "No.") + CR + LF;
+                            ErrorText := ErrorText + StrSubstNo('%1:  The update has been interrupted to respect the warning.', "No.") + CR + LF;
                         end;
-                    end;
 
-                    if (PrdLine."Finished Quantity" = 0) and (CurErrText.EndsWith('The update has been interrupted to respect the warning.' + CR + LF)) then begin
-                        CurErrText := CurErrText + StrSubstNo(Text004, ProductionOrder.TableCaption(), ProductionOrder."No.") + CR + LF;
-                        ErrorText := ErrorText + StrSubstNo(Text004, ProductionOrder.TableCaption(), ProductionOrder."No.") + CR + LF;
-                    end;
+                        if not ProdOrderStatusMgt.OutputExists(PrdLine) then begin
+                            if ProdOrderStatusMgt.MatrOrCapConsumpExists(PrdLine) then begin
+                                LineError := true;
+                                CurErrText := CurErrText + StrSubstNo(Text009, PrdLine."Line No.", ProductionOrder.TableCaption(), PrdLine."Prod. Order No.") + CR + LF;
+                                ErrorText := ErrorText + StrSubstNo(Text009, PrdLine."Line No.", ProductionOrder.TableCaption(), PrdLine."Prod. Order No.") + CR + LF;
+                            end;
+                        end;
+
+                        if (PrdLine."Finished Quantity" = 0) and (CurErrText.EndsWith('The update has been interrupted to respect the warning.' + CR + LF)) then begin
+                            CurErrText := CurErrText + StrSubstNo(Text004, ProductionOrder.TableCaption(), ProductionOrder."No.") + CR + LF;
+                            ErrorText := ErrorText + StrSubstNo(Text004, ProductionOrder.TableCaption(), ProductionOrder."No.") + CR + LF;
+                        end;*/
+
+                        if not ProdOrderStatusMgt.OutputExists(PrdLine) then begin
+                            CurOrdOutputExists := false;
+                        end else if PrdLine."Finished Quantity" < PrdLine."Remaining Quantity" then begin
+                            CurrReport.Skip();
+                        end;
+
                     until PrdLine.Next() = 0;
-                */
 
                 if not LineError then
                     if (not CHGStatus(ProductionOrder, false)) then begin
@@ -68,8 +78,9 @@ report 50000 "Finish multiple production ord"
                         CurErrText := CurErrText + StrSubstNo('%1: ', "No.") + GetLastErrorText() + CR + LF;
                         ErrorText := ErrorText + StrSubstNo('%1: ', "No.") + GetLastErrorText() + CR + LF;
 
-                        //ProductionOrder.Blocked := true;//Change Blocked to TRUE if got error while change order status to finished
-                        //ProductionOrder.Modify();
+                        PrdOrd.Get(ProductionOrder.Status, ProductionOrder."No.");
+                        PrdOrd.Blocked := true;//Change Blocked to TRUE if got error while change order status to finished
+                        PrdOrd.Modify();
                     end;
 
                 // if LineError or (not CHGStatus(ProductionOrder, false)) then begin
@@ -106,6 +117,9 @@ report 50000 "Finish multiple production ord"
             end;
         }
     }
+
+    var
+        CurOrdOutputExists: Boolean;
 
     trigger OnPreReport()
     var
@@ -147,14 +161,17 @@ report 50000 "Finish multiple production ord"
         ItemLdgEntry: Record "Item Ledger Entry";
     begin
         PstDate := Today();
-        ItemLdgEntry.Reset();
-        ItemLdgEntry.SetRange("Entry Type", ItemLdgEntry."Entry Type"::Output);
-        ItemLdgEntry.SetRange("Order Type", ItemLdgEntry."Order Type"::Production);
-        ItemLdgEntry.SetRange("Order No.", PrdOrd."No.");//"Document No."
-        ItemLdgEntry.SetCurrentKey("Posting Date");
-        ItemLdgEntry.SetAscending("Posting Date", false);
-        if ItemLdgEntry.FindFirst() then
-            PstDate := ItemLdgEntry."Posting Date";
+
+        if CurOrdOutputExists then begin
+            ItemLdgEntry.Reset();
+            ItemLdgEntry.SetRange("Entry Type", ItemLdgEntry."Entry Type"::Output);
+            ItemLdgEntry.SetRange("Order Type", ItemLdgEntry."Order Type"::Production);
+            ItemLdgEntry.SetRange("Order No.", PrdOrd."No.");//"Document No."
+            ItemLdgEntry.SetCurrentKey("Posting Date");
+            ItemLdgEntry.SetAscending("Posting Date", false);
+            if ItemLdgEntry.FindFirst() then
+                PstDate := ItemLdgEntry."Posting Date";
+        end;
 
         PrdOrd.Blocked := false;//Update to avoid error while change to finished.
         PrdOrd.Modify();
