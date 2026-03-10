@@ -33,6 +33,10 @@ page 50010 MTNA_IF_PurchaseReceiving_API
                 {
                     ApplicationArea = All;
                 }
+                field(PrimaryrecordID; Rec."Primary record ID")
+                {
+                    ApplicationArea = All;
+                }
                 field(OrderNo; Rec."Order No.")
                 {
                     ApplicationArea = All;

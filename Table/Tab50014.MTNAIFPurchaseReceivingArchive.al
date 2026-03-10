@@ -17,55 +17,59 @@ table 50014 MTNA_IF_PurchaseReceivingArc
         {
             Caption = 'Status';
         }
-        field(4; "Order No."; Text[20])
+        field(4; "Primary record ID"; Text[35])
+        {
+            Caption = 'Primary record ID';
+        }
+        field(5; "Order No."; Text[20])
         {
             Caption = 'Order No.';
         }
-        field(5; "Posting Date"; Date)
+        field(6; "Posting Date"; Date)
         {
             Caption = 'Posting Date';
         }
-        field(6; "Vendor Shipment No."; Text[35])
+        field(7; "Vendor Shipment No."; Text[35])
         {
             Caption = 'Vendor Shipment No.';
         }
-        field(7; "Line No."; Integer)
+        field(8; "Line No."; Integer)
         {
             Caption = 'Line No.';
         }
-        field(8; "Qty. to Receive"; Decimal)
+        field(9; "Qty. to Receive"; Decimal)
         {
             Caption = 'Qty. to Receive';
         }
-        field(9; "Location Code"; Text[10])
+        field(10; "Location Code"; Text[10])
         {
             Caption = 'Location Code';
         }
-        field(10; "Bin Code"; Text[20])
+        field(11; "Bin Code"; Text[20])
         {
             Caption = 'Bin Code';
         }
-        field(11; "Lot Number"; Text[50])
+        field(12; "Lot Number"; Text[50])
         {
             Caption = 'Lot Number';
         }
-        field(12; "Created datetime"; DateTime)
+        field(13; "Created datetime"; DateTime)
         {
             Caption = 'Created datetime';
         }
-        field(13; "Processed datetime"; DateTime)
+        field(14; "Processed datetime"; DateTime)
         {
             Caption = 'Processed datetime';
         }
-        field(14; "Process start datetime"; DateTime)
+        field(15; "Process start datetime"; DateTime)
         {
             Caption = 'Process start datetime';
         }
-        field(15; "Error message"; Blob)
+        field(16; "Error message"; Blob)
         {
             Caption = 'Error message';
         }
-        field(16; "Archive Entry No."; Integer)
+        field(17; "Archive Entry No."; Integer)
         {
             Caption = 'Archive Entry No.';
         }

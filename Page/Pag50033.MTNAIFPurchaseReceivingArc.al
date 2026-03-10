@@ -32,6 +32,11 @@ page 50033 MTNA_IF_PurchaseReceivingArc
                     ApplicationArea = All;
                     Editable = false;
                 }
+                field("Primary record ID"; Rec."Primary record ID")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
                 field("Order No."; Rec."Order No.")
                 {
                     ApplicationArea = All;
