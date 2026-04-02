@@ -65,11 +65,12 @@ report 50000 "Finish multiple production ord"
 
                         if not ProdOrderStatusMgt.OutputExists(PrdLine) then begin
                             CurOrdOutputExists := false;
-                        end else if PrdLine."Finished Quantity" < PrdLine."Remaining Quantity" then begin
-                            PrdOrd.Get(ProductionOrder.Status, ProductionOrder."No.");
-                            PrdOrd.Blocked := false;//Update to avoid process in next run
-                            PrdOrd.Modify();
-                            CurrReport.Skip();
+                            /* do not need skip any Prd Orders just finish them
+                            end else if PrdLine."Finished Quantity" < PrdLine."Remaining Quantity" then begin
+                                PrdOrd.Get(ProductionOrder.Status, ProductionOrder."No.");
+                                PrdOrd.Blocked := false;//Update to avoid process in next run
+                                PrdOrd.Modify();
+                                CurrReport.Skip(); */
                         end;
 
                     until PrdLine.Next() = 0;

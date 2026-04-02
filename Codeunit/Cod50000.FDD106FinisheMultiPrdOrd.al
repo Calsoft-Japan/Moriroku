@@ -46,7 +46,7 @@ codeunit 50000 "FDD106 Finishe Multi Prd Ord"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Prod. Order Status Management", OnBeforePostFlushItemJnlLine, '', false, false)]
     local procedure "Prod. Order Status Management_OnBeforePostFlushItemJnlLine"(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
-        //IsHandled := true;//Skip Original Post Item Journal Line, do not do posting on change prd order status to finished.
+        IsHandled := true;//Skip Original Post Item Journal Line, do not do posting on change prd order status to finished.
         if ItemJournalLine.Quantity = 0 then //Skip Post Item Journal with Output Qty=zero
             IsHandled := true;
     end;
