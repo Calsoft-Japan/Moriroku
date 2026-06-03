@@ -129,7 +129,7 @@ codeunit 50004 MTNAIFProductionOrderProcess
         NoSeries.TestManual(RecProductionOrder.GetNoSeriesCode());
         RecProductionOrder.Validate("No.", RecMTNA_IF_ProductionOrder."Production Order No.");
         RecProductionOrder."Source Type" := RecProductionOrder."Source Type"::Item;
-        RecProductionOrder.Validate("Due Date", RecMTNA_IF_ProductionOrder."APS Ending Date");
+        //RecProductionOrder.Validate("Due Date", RecMTNA_IF_ProductionOrder."APS Ending Date");
         RecProductionOrder.Validate("Location Code", RecMTNA_IF_ProductionOrder."Location Code");
         RecProductionOrder.Quantity := RecMTNA_IF_ProductionOrder.Quantity;
         RecProductionOrder."No. Series" := RecProductionOrder.GetNoSeriesCode();
@@ -137,6 +137,8 @@ codeunit 50004 MTNAIFProductionOrderProcess
         RecProductionOrder."APS Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
         RecProductionOrder."APS Ending Date" := RecMTNA_IF_ProductionOrder."APS Ending Date";
         RecProductionOrder."APS Ending Time" := RecMTNA_IF_ProductionOrder."APS Ending Time";
+        RecProductionOrder."Due Date" := RecMTNA_IF_ProductionOrder."Due Date";
+        RecProductionOrder."Due Time" := RecMTNA_IF_ProductionOrder."Due Time";
 
         RecProductionOrder."Starting Date" := RecMTNA_IF_ProductionOrder."APS Starting Date";
         RecProductionOrder."Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
@@ -167,6 +169,8 @@ codeunit 50004 MTNAIFProductionOrderProcess
         RecProductionOrder."APS Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
         RecProductionOrder."APS Ending Date" := RecMTNA_IF_ProductionOrder."APS Ending Date";
         RecProductionOrder."APS Ending Time" := RecMTNA_IF_ProductionOrder."APS Ending Time";
+        RecProductionOrder."Due Date" := RecMTNA_IF_ProductionOrder."Due Date";
+        RecProductionOrder."Due Time" := RecMTNA_IF_ProductionOrder."Due Time";
 
         RecProductionOrder."Starting Date" := RecMTNA_IF_ProductionOrder."APS Starting Date";
         RecProductionOrder."Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
@@ -181,6 +185,8 @@ codeunit 50004 MTNAIFProductionOrderProcess
             RecProdOrderLine."APS Ending Time" := RecMTNA_IF_ProductionOrder."APS Ending Time";
             RecProdOrderLine."APS Starting Date" := RecMTNA_IF_ProductionOrder."APS Starting Date";
             RecProdOrderLine."APS Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
+            RecProdOrderLine."Due Date" := RecMTNA_IF_ProductionOrder."Due Date";
+            RecProdOrderLine."Due Time" := RecMTNA_IF_ProductionOrder."Due Time";
             RecProdOrderLine.Modify(true);
             RecProdOrderLine.UpdateProdOrderComp(RecProdOrderLine."Qty. per Unit of Measure");
             UpdateAPS(RecMTNA_IF_ProductionOrder);
@@ -250,7 +256,9 @@ codeunit 50004 MTNAIFProductionOrderProcess
                                 CheckProductionBOMStatus(ProdOrderLine."Production BOM No.", ProdOrderLine."Production BOM Version Code");
                             if CalcRoutings then
                                 CheckRoutingStatus(ProdOrderLine."Routing No.", ProdOrderLine."Routing Version Code");
-                            ProdOrderLine."Due Date" := RecMTNA_IF_ProductionOrder."APS Ending Date";
+                            //ProdOrderLine."Due Date" := RecMTNA_IF_ProductionOrder."APS Ending Date";
+                            ProdOrderLine."Due Date" := RecMTNA_IF_ProductionOrder."Due Date";
+                            ProdOrderLine."Due Time" := RecMTNA_IF_ProductionOrder."Due Time";
                             IsHandled := false;
                             if not IsHandled then
                                 if not CalcProdOrder.Calculate(ProdOrderLine, Direction, CalcRoutings, CalcComponents, false, false) then
@@ -521,11 +529,13 @@ codeunit 50004 MTNAIFProductionOrderProcess
         RecProductionOrderLine.SetRange("No.", RecMTNA_IF_ProductionOrder."Production Order No.");
         RecProductionOrderLine.SetRange("Source Type", RecProductionOrderLine."Source Type"::Item);
         if RecProductionOrderLine.FindFirst() then begin
-            RecProductionOrderLine.Validate("Due Date", RecMTNA_IF_ProductionOrder."APS Ending Date");
+            //RecProductionOrderLine.Validate("Due Date", RecMTNA_IF_ProductionOrder."APS Ending Date");
             RecProductionOrderLine."Starting Date" := RecMTNA_IF_ProductionOrder."APS Starting Date";
             RecProductionOrderLine."Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
             RecProductionOrderLine."Ending Date" := RecMTNA_IF_ProductionOrder."APS Ending Date";
             RecProductionOrderLine."Ending Time" := RecMTNA_IF_ProductionOrder."APS Ending Time";
+            RecProductionOrderLine."Due Date" := RecMTNA_IF_ProductionOrder."Due Date";
+            RecProductionOrderLine."Due Time" := RecMTNA_IF_ProductionOrder."Due Time";
             RecProductionOrderLine."Starting Date-Time" := CreateDateTime(RecMTNA_IF_ProductionOrder."APS Starting Date", RecMTNA_IF_ProductionOrder."APS Starting Time");
             RecProductionOrderLine."Ending Date-Time" := CreateDateTime(RecMTNA_IF_ProductionOrder."APS Ending Date", RecMTNA_IF_ProductionOrder."APS Ending Time");
             RecProductionOrderLine.Modify(true);
@@ -536,11 +546,13 @@ codeunit 50004 MTNAIFProductionOrderProcess
         RecProdOrderLine.SetRange(Status, RecProductionOrderLine.Status::Released);
         RecProdOrderLine.SetRange("Prod. Order No.", RecMTNA_IF_ProductionOrder."Production Order No.");
         if RecProdOrderLine.FindFirst() then begin
-            RecProdOrderLine.Validate("Due Date", RecMTNA_IF_ProductionOrder."APS Ending Date");
+            //RecProdOrderLine.Validate("Due Date", RecMTNA_IF_ProductionOrder."APS Ending Date");
             RecProdOrderLine."Starting Date" := RecMTNA_IF_ProductionOrder."APS Starting Date";
             RecProdOrderLine."Starting Time" := RecMTNA_IF_ProductionOrder."APS Starting Time";
             RecProdOrderLine."Ending Date" := RecMTNA_IF_ProductionOrder."APS Ending Date";
             RecProdOrderLine."Ending Time" := RecMTNA_IF_ProductionOrder."APS Ending Time";
+            RecProdOrderLine."Due Date" := RecMTNA_IF_ProductionOrder."Due Date";
+            RecProdOrderLine."Due Time" := RecMTNA_IF_ProductionOrder."Due Time";
             RecProdOrderLine."Starting Date-Time" := CreateDateTime(RecMTNA_IF_ProductionOrder."APS Starting Date", RecMTNA_IF_ProductionOrder."APS Starting Time");
             RecProdOrderLine."Ending Date-Time" := CreateDateTime(RecMTNA_IF_ProductionOrder."APS Ending Date", RecMTNA_IF_ProductionOrder."APS Ending Time");
             RecProdOrderLine.Modify(true);
@@ -582,6 +594,8 @@ codeunit 50004 MTNAIFProductionOrderProcess
         ProdOrderLine."APS Ending Time" := ProductionOrder."APS Ending Time";
         ProdOrderLine."APS Starting Date" := ProductionOrder."APS Starting Date";
         ProdOrderLine."APS Starting Time" := ProductionOrder."APS Starting Time";
+        ProdOrderLine."Due Date" := ProductionOrder."Due Date";
+        ProdOrderLine."Due Time" := ProductionOrder."Due Time";
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Prod. Order Routing Line", OnAfterWorkCenterTransferFields, '', false, false)]

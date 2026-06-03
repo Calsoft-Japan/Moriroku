@@ -26,5 +26,13 @@ pageextension 50003 "Released Prod. Order Lines Ext" extends "Released Prod. Ord
                 ApplicationArea = all;
             }
         }
+        addafter("Due Date")
+        {
+            field("Due Time"; Rec."Due Time")
+            {
+                Editable = false;
+                ApplicationArea = all;
+            }
+        }
     }
 }

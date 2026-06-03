@@ -22,5 +22,10 @@ tableextension 50001 "Prod. Order Line Ext" extends "Prod. Order Line"
             Caption = 'APS Ending Time';
             DataClassification = ToBeClassified;
         }
+        field(50004; "Due Time"; Time)
+        {
+            Caption = 'Due Time';
+            DataClassification = ToBeClassified;
+        }
     }
 }

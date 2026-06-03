@@ -62,6 +62,17 @@ page 50028 MTNA_IF_ProductionOrderErr
                     ApplicationArea = All;
                     Editable = Rec.Status = Rec.Status::Error;
                 }
+
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = All;
+                    Editable = Rec.Status = Rec.Status::Error;
+                }
+                field("Due Time"; Rec."Due Time")
+                {
+                    ApplicationArea = All;
+                    Editable = Rec.Status = Rec.Status::Error;
+                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;

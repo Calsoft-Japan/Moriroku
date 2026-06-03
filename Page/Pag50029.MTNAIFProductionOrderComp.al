@@ -62,6 +62,17 @@ page 50029 MTNA_IF_ProductionOrderComp
                     ApplicationArea = All;
                     Editable = false;
                 }
+
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
+                field("Due Time"; Rec."Due Time")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;

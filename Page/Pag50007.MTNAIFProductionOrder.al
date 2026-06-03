@@ -63,6 +63,16 @@ page 50007 MTNA_IF_ProductionOrder
                     ApplicationArea = All;
                     Editable = Rec.Status = Rec.Status::Ready;
                 }
+                field("Due Date"; Rec."Due Date")
+                {
+                    ApplicationArea = All;
+                    Editable = Rec.Status = Rec.Status::Ready;
+                }
+                field("Due Time"; Rec."Due Time")
+                {
+                    ApplicationArea = All;
+                    Editable = Rec.Status = Rec.Status::Ready;
+                }
                 field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = All;

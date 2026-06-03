@@ -41,39 +41,47 @@ table 50013 MTNA_IF_ProductionOrderArchive
         {
             Caption = 'APS Ending Time';
         }
-        field(10; "Location Code"; Text[10])
+        field(10; "Due Date"; Date)
+        {
+            Caption = 'Due Date';
+        }
+        field(11; "Due Time"; Time)
+        {
+            Caption = 'Due Time';
+        }
+        field(12; "Location Code"; Text[10])
         {
             Caption = 'Location Code';
         }
-        field(11; "Quantity"; Decimal)
+        field(13; "Quantity"; Decimal)
         {
             Caption = 'Quantity';
         }
-        field(12; "Work Center Code"; Text[20])
+        field(14; "Work Center Code"; Text[20])
         {
             Caption = 'Work Center Code';
         }
-        field(13; "Production Order No."; Text[20])
+        field(15; "Production Order No."; Text[20])
         {
             Caption = 'Production Order No.';
         }
-        field(14; "Created datetime"; DateTime)
+        field(16; "Created datetime"; DateTime)
         {
             Caption = 'Created datetime';
         }
-        field(15; "Processed datetime"; DateTime)
+        field(17; "Processed datetime"; DateTime)
         {
             Caption = 'Processed datetime';
         }
-        field(16; "Process start datetime"; DateTime)
+        field(18; "Process start datetime"; DateTime)
         {
             Caption = 'Process start datetime';
         }
-        field(17; "Error message"; Blob)
+        field(19; "Error message"; Blob)
         {
             Caption = 'Error message';
         }
-        field(22; "Archive Entry No."; Integer)
+        field(20; "Archive Entry No."; Integer)
         {
             Caption = 'Archive Entry No.';
         }

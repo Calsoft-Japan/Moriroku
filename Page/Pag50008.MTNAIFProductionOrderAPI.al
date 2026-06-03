@@ -57,6 +57,14 @@ page 50008 MTNA_IF_ProductionOrder_API
                 {
                     ApplicationArea = All;
                 }
+                field(DueDate; Rec."Due Date")
+                {
+                    ApplicationArea = All;
+                }
+                field(DueTime; Rec."Due Time")
+                {
+                    ApplicationArea = All;
+                }
                 field(LocationCode; Rec."Location Code")
                 {
                     ApplicationArea = All;
