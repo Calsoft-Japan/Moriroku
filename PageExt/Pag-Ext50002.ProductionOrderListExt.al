@@ -26,5 +26,13 @@ pageextension 50002 ProductionOrderListExt extends "Production Order List"
                 ApplicationArea = all;
             }
         }
+        addafter("Due Date")
+        {
+            field("Due Time"; Rec."Due Time")
+            {
+                Editable = false;
+                ApplicationArea = all;
+            }
+        }
     }
 }

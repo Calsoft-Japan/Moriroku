@@ -1,6 +1,6 @@
-pageextension 50026 ReleasedProductionOrderExt extends "Released Production Order"
+pageextension 50027 ReleasedProductionOrdersExt extends "Released Production Orders"
 {
-    //CS 2026/6/2 Page Ext for Released Production Order by Channing.Zhou
+    //CS 2026/6/3 Page Ext for Released Production Orders by Channing.Zhou
     layout
     {
         addafter("Due Date")
