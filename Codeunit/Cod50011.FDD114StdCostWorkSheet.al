@@ -23,6 +23,7 @@ codeunit 50011 FDD114StdCostWorkSheet
             ItemJournalLine.SetRange("Journal Batch Name", JnlBatchName);
             if LineNo > 0 then begin
                 ItemJournalLine.SetRange("Line No.", LineNo);
+                if ItemJournalLine.FindFirst() then ItemJournalLine.SetRange("Line No.");
             end;
         end;
     end;
