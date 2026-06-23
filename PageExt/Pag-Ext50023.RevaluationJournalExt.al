@@ -33,14 +33,14 @@ pageextension 50023 "Revaluation Journal Ext." extends "Revaluation Journal"
                         if SetDim.RunModal() = Action::LookupOK then begin
                             SetDim.GetDims(NewDepartDim, NewGenDim);
                             repeat
-                                if GenLedgerSetup."Shortcut Dimension 1 Code" = 'DEPARTMENT' then
+                                if (GenLedgerSetup."Shortcut Dimension 1 Code" = 'DEPARTMENT') and (NewDepartDim <> '') then
                                     ItemJnl.Validate("Shortcut Dimension 1 Code", NewDepartDim);
-                                if GenLedgerSetup."Shortcut Dimension 1 Code" = 'GENERAL' then
+                                if (GenLedgerSetup."Shortcut Dimension 1 Code" = 'GENERAL') and (NewGenDim <> '') then
                                     ItemJnl.Validate("Shortcut Dimension 1 Code", NewGenDim);
 
-                                if GenLedgerSetup."Shortcut Dimension 2 Code" = 'GENERAL' then
+                                if (GenLedgerSetup."Shortcut Dimension 2 Code" = 'GENERAL') and (NewGenDim <> '') then
                                     ItemJnl.Validate("Shortcut Dimension 2 Code", NewGenDim);
-                                if GenLedgerSetup."Shortcut Dimension 2 Code" = 'DEPARTMENT' then
+                                if (GenLedgerSetup."Shortcut Dimension 2 Code" = 'DEPARTMENT') and (NewDepartDim <> '') then
                                     ItemJnl.Validate("Shortcut Dimension 2 Code", NewDepartDim);
 
                                 ItemJnl.Modify(true);
