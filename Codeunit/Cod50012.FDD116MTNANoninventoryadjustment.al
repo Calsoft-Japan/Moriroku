@@ -24,8 +24,8 @@ codeunit 50012 "MTNA Non-inventory adjustment"
         JnlDocNo := NoSeries.PeekNextNo(ItmJnlBatch."No. Series", ItemLedgerEntry."Posting Date");// GetNextNo
 
         ItemJnl.Reset();
-        ItemJnl."Journal Template Name" := 'ITEM';
-        ItemJnl."Journal Batch Name" := 'Z-EXPENSE';
+        ItemJnl.SetRange("Journal Template Name", 'ITEM');
+        ItemJnl.SetRange("Journal Batch Name", 'Z-EXPENSE');
         if ItemJnl.FindSet() then
             ItemJnl.DeleteAll();
 
