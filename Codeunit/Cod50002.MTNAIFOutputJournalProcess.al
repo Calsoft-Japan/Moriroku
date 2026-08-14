@@ -215,9 +215,10 @@ codeunit 50002 MTNAIFOutputJournalProcess
             /*2025/5/12 by Channing.zhou Add logic to set the Cap. Unit of Measure Code to SEC and check the Qty. per Cap. Unit of Measure value. Start*/
             RecOutputJournalLine."Cap. Unit of Measure Code" := 'SEC';
             RecOutputJournalLine.Validate("Cap. Unit of Measure Code");
-            if RecOutputJournalLine."Qty. per Cap. Unit of Measure" <> 0.00028 then begin
+            /*if RecOutputJournalLine."Qty. per Cap. Unit of Measure" <> 0.00028 then begin
                 RecOutputJournalLine."Qty. per Cap. Unit of Measure" := 0.00028;
             end;
+            */
             /*2025/5/12 end*/
             RecOutputJournalLine.Insert(true);
         until RecProdOrderRoutingLine.Next() = 0;
