@@ -60,6 +60,7 @@ table 50017 MTNA_IF_ItemReclassJournalArc
         field(14; "Quantity"; Decimal)
         {
             Caption = 'Quantity';
+            DecimalPlaces = 0 : 5;
         }
         field(15; "Lot No."; Text[50])
         {

@@ -56,6 +56,7 @@ table 50010 MTNA_IF_OutputJournalArchive
         field(13; "Output Quantity"; Decimal)
         {
             Caption = 'Output Quantity';
+            DecimalPlaces = 0 : 5;
         }
         field(14; "Work Shift Code"; Text[10])
         {
@@ -64,6 +65,7 @@ table 50010 MTNA_IF_OutputJournalArchive
         field(15; "Scrap Quantity"; Decimal)
         {
             Caption = 'Scrap Quantity';
+            DecimalPlaces = 0 : 5;
         }
         field(16; "Scrap Code"; Text[10])
         {

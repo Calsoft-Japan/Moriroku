@@ -52,6 +52,7 @@ table 50007 MTNA_IF_ItemJournal
         field(12; "Quantity"; Decimal)
         {
             Caption = 'Quantity';
+            DecimalPlaces = 0 : 5;
         }
         field(13; "Unit of Measure Code"; Text[10])
         {

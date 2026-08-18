@@ -40,6 +40,7 @@ table 50014 MTNA_IF_PurchaseReceivingArc
         field(9; "Qty. to Receive"; Decimal)
         {
             Caption = 'Qty. to Receive';
+            DecimalPlaces = 0 : 5;
         }
         field(10; "Location Code"; Text[10])
         {

@@ -46,10 +46,12 @@ table 50003 MTNA_IF_POLines
         field(10; "Quantity"; Decimal)
         {
             Caption = 'Quantity';
+            DecimalPlaces = 0 : 5;
         }
         field(11; "Unit Price"; Decimal)
         {
             Caption = 'Unit Price';
+            DecimalPlaces = 2 : 5;
         }
         field(12; "Unit of Measure Code"; Text[10])
         {

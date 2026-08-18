@@ -56,6 +56,7 @@ table 50013 MTNA_IF_ProductionOrderArchive
         field(13; "Quantity"; Decimal)
         {
             Caption = 'Quantity';
+            DecimalPlaces = 0 : 5;
         }
         field(14; "Work Center Code"; Text[20])
         {
